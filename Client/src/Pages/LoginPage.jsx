@@ -1,12 +1,48 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Mail, Lock, ArrowRight } from 'lucide-react';
+// ADDED: Import useDispatch to connect to Redux
+import { useDispatch, useSelector } from 'react-redux';
+import { loginUser } from '../features/auth/authSlice';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+
+// In a real app, you would import your actual login action like this:
+// import { loginUser } from '../features/auth/authSlice';
 
 const sportsHeroUrl = 'https://placehold.co/1920x1080/000000/FFFFFF?text=Athletes+in+Action';
 
 const LoginPage = ({ onSwitchToRegister }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  // ADDED: Initialize the dispatch function
+  const dispatch = useDispatch();
+  const navigate = useNavigate()
+
+  const {user , isError , message} = useSelector(state => state.auth)
+
+   useEffect(() => {
+    if (user) {
+      navigate("/");
+    }
+
+    if(isError) {
+      toast.error("Invalid Credentials")
+    }
+    
+  }, [dispatch, user, navigate]);
+
+  // CHANGED: Consolidated email and password into a single formData state
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+  });
   const [isLoading, setIsLoading] = useState(false);
+
+  // ADDED: A single handler for all form input changes
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -15,8 +51,18 @@ const LoginPage = ({ onSwitchToRegister }) => {
     // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
-      console.log('Login attempt:', { email, password });
-      // Add your login logic here
+      console.log('Login attempt with formData:', formData);
+      
+      // --- YOUR REDUX DISPATCH LOGIC GOES HERE ---
+      // This is the sample function where you will dispatch your login action.
+      // Just uncomment the line below and replace 'loginUser' with your actual action creator.
+      // dispatch(loginUser(formData));
+      // -----------------------------------------
+
+      dispatch(loginUser(formData))
+
+
+
     }, 1500);
   };
 
@@ -85,11 +131,11 @@ const LoginPage = ({ onSwitchToRegister }) => {
                   </div>
                   <input
                     id="email"
-                    name="email"
+                    name="email" // name attribute is crucial for the handleChange function
                     type="email"
                     required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={formData.email}       // CHANGED
+                    onChange={handleChange}      // CHANGED
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 bg-white/50 text-gray-900 placeholder-gray-500"
                     placeholder="Enter your email"
                   />
@@ -102,11 +148,11 @@ const LoginPage = ({ onSwitchToRegister }) => {
                   </div>
                   <input
                     id="password"
-                    name="password"
+                    name="password" // name attribute is crucial for the handleChange function
                     type="password"
                     required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    value={formData.password}    // CHANGED
+                    onChange={handleChange}      // CHANGED
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 bg-white/50 text-gray-900 placeholder-gray-500"
                     placeholder="Enter your password"
                   />
@@ -134,7 +180,7 @@ const LoginPage = ({ onSwitchToRegister }) => {
                 <p className="text-gray-600 text-sm">
                   Don't have an account?{' '}
                   <button
-                    onClick={onSwitchToRegister}
+                    onClick={() => navigate("/register")}
                     className="text-orange-600 hover:text-orange-500 font-semibold transition-colors duration-200 hover:underline"
                   >
                     Sign up here

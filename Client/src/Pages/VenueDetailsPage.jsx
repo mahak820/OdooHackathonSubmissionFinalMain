@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { BookingModal } from '../components/BookingModal';
 import { SportsLoader } from '../components/ui/SportsLoader'; // 1. Import the loader
+import { fetchVenue } from '../features/venue/venueSlice';
 
 // --- MOCK DATA (No changes) ---
 const detailedVenuesData = [
@@ -80,6 +81,7 @@ const VenueDetailsPage = () => {
   useEffect(() => {
     setLoading(true);
     // Simulate API fetch delay
+    dispatch(fetchVenue(venueId))
     const timer = setTimeout(() => {
       const foundVenue = detailedVenuesData.find(v => v.id === parseInt(venueId));
       setVenue(foundVenue);

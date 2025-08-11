@@ -51,7 +51,7 @@ const getVenues = expressAsyncHandler(async (req, res) => {
 // @route GET /api/venues/:id
 // @access Public
 const getVenueById = expressAsyncHandler(async (req, res) => {
-    const venue = await Venue.findById(req.params.id);
+    const venue = await Venue.findById(req.params.venueid);
 
     if (!venue) {
         res.status(404);
@@ -65,7 +65,7 @@ const getVenueById = expressAsyncHandler(async (req, res) => {
 // @route PUT /api/venues/:id
 // @access Private (Owner/Admin)
 const updateVenue = expressAsyncHandler(async (req, res) => {
-    const venue = await Venue.findById(req.params.id);
+    const venue = await Venue.findById(req.params.venueid);
 
     if (!venue) {
         res.status(404);
@@ -86,7 +86,7 @@ const updateVenue = expressAsyncHandler(async (req, res) => {
 // @route DELETE /api/venues/:id
 // @access Private (Owner/Admin)
 const deleteVenue = expressAsyncHandler(async (req, res) => {
-    const venue = await Venue.findById(req.params.id);
+    const venue = await Venue.findById(req.params.venueid);
 
     if (!venue) {
         res.status(404);

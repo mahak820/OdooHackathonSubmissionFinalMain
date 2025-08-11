@@ -28,6 +28,22 @@ const authSlice = createSlice(
                 state.isError = true
                 state.message = action.payload
             })
+            //LOGIN
+            .addCase(loginUser.pending , (state ,action) => {
+                state.isLoading = true
+            })
+            .addCase(loginUser.fulfilled , (state ,action) => {
+                state.isLoading = false ,
+                state.user = action.payload,
+                state.isSuccess = true
+            })
+            .addCase(loginUser.rejected , (state ,action) => {
+                state.isLoading = false ,
+                state.isSuccess = false
+                state.isError = true
+                state.message = action.payload
+            })
+        
             //LOGOUT
             .addCase(logoutUser.fulfilled , (state , action) => {
                 state.user = null
@@ -40,7 +56,7 @@ export default authSlice.reducer
 
 
 export const signInUser = createAsyncThunk(
-    "AUTH/USER" , 
+    "AUTH/REGISTER" , 
     async (formData , thunkAPI) => {
 
         // console.log(formData)
@@ -54,6 +70,23 @@ export const signInUser = createAsyncThunk(
 
     }
 )
+
+export const loginUser = createAsyncThunk(
+    "AUTH/LOGIN" , 
+    async (formData , thunkAPI) => {
+
+        console.log(formData)
+
+        try {
+            return await authService.login(formData)
+        } catch (error) {
+            const message = error.response.data.message
+            thunkAPI.rejectWithValue(message)
+        }
+
+    }
+)
+
 
 export const logoutUser = createAsyncThunk(
     "AUTH/LOGOUT" , 

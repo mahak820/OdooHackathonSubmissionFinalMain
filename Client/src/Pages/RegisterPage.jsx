@@ -1,7 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { User, Mail, Phone, MapPin, Lock, Shield, ArrowRight } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { signInUser } from '../features/auth/authSlice';
+import { toast } from 'react-toastify';
 
 const sportsHeroUrl = 'https://placehold.co/1920x1080/000000/FFFFFF?text=Athletes+in+Action';
+
+    //  const {name , email,password,role,city,phone} = req.body
+
 
 const RegisterPage = ({ onSwitchToLogin }) => {
   const [formData, setFormData] = useState({
@@ -9,12 +16,28 @@ const RegisterPage = ({ onSwitchToLogin }) => {
     email: '',
     phone: '',
     city: '',
+    // password: '',
     password: '',
-    confirmPassword: '',
     role: 'user'
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+
+  const dispatch = useDispatch() 
+  const navigate = useNavigate() 
+
+  const {user , isError , message } = useSelector(state => state.auth)
+
+   useEffect(() => {
+      if (user) {
+        navigate("/");
+      }
+  
+      if(isError) {
+        toast.error("Invalid Credentials")
+      }
+      
+    }, [dispatch, user, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -55,7 +78,8 @@ const RegisterPage = ({ onSwitchToLogin }) => {
 
     setTimeout(() => {
       setIsLoading(false);
-      console.log('Registration attempt:', formData);
+    //   console.log('Registration attempt:', formData);
+    dispatch(signInUser(formData))
     }, 2000);
   };
 

@@ -12,11 +12,11 @@ const { protect, admin, ownerOnly } = require("../middlewares/authMiddleWare");
 
 // Public
 router.get("/", protect, getVenues);
-router.get("/:id", getVenueById);
+router.get("/:venueid", getVenueById);
 
 // Protected (Owner/Admin)
 router.post("/",protect, ownerOnly, createVenue);
-router.put("/:id", protect,ownerOnly, updateVenue);
-router.delete("/:id",protect, ownerOnly, deleteVenue);
+router.put("/:venueid", protect,ownerOnly, updateVenue);
+router.delete("/:venueid",protect, ownerOnly, deleteVenue);
 
 module.exports = router;
