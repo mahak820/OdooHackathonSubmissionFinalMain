@@ -11,7 +11,7 @@ const {
 const { protect, admin, ownerOnly } = require("../middlewares/authMiddleWare");
 
 // Public
-router.get("/", protect, getVenues);
+router.get("/",  getVenues);
 router.get("/:venueid", getVenueById);
 
 // Protected (Owner/Admin)

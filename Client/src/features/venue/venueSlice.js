@@ -67,6 +67,7 @@ export default venueSlice.reducer
 // fetch all venues
 export const fetchVenues = createAsyncThunk("FETCH/VENUES", async(_,thunkAPI)=>{
         
+    console.log("Hellooo")
 
     try{
  return await venueService.getvenues()

@@ -81,7 +81,7 @@ const VenueDetailsPage = () => {
   useEffect(() => {
     setLoading(true);
     // Simulate API fetch delay
-    dispatch(fetchVenue(venueId))
+    // dispatch(fetchVenue(venueId))
     const timer = setTimeout(() => {
       const foundVenue = detailedVenuesData.find(v => v.id === parseInt(venueId));
       setVenue(foundVenue);

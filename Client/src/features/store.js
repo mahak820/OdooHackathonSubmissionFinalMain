@@ -1,6 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import auth from "./auth/authSlice"
-import venue from "./auth/authSlice"
+import venue from "./venue/venueSlice"
 
 
 const store = configureStore(

@@ -2,7 +2,9 @@ import axios from "axios";
 import { api } from "../../../Api/api";
 
 const getvenues = async () => {
+    // console.log("object")
   const response = await axios.get(`${api}/venue`);
+  console.log(response.data)
   return response.data;
 };
 
