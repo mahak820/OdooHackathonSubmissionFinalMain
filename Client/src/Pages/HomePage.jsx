@@ -14,6 +14,9 @@ import PreLoader from '../components/ui/PreLoader';
 import Hero3 from '../components/Hero3';
 import Hero4 from '../components/Hero4';
 import Features4 from '../components/Features4';
+import FeaturedVenues from '../components/FeaturedVenues';
+import TrendingSports from '../components/TrendingSports';
+import { TestimonialsSection } from '../components/ui/ScrollingTestimonials';
 
 
 // Your other components like Ribbons, BlobCursor, etc. can be imported as needed.
@@ -38,6 +41,9 @@ const HomePage = () => {
       {/* <Hero /> */}
       {/* <Hero2/> */}
       <Hero3/>
+      <FeaturedVenues/>
+      <TrendingSports/>
+      <TestimonialsSection/>
       
       {/* <Hero4/> */}
       

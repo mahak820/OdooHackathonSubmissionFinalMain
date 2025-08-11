@@ -6,17 +6,17 @@ const {
     getVenueById,
     updateVenue,
     deleteVenue
-} = require("../controllers/venueController");
+} = require("../controllers/venueController/venueController");
 
-const { protect, admin } = require("../middleware/authMiddleware");
+const { protect, admin, ownerOnly } = require("../middlewares/authMiddleWare");
 
 // Public
 router.get("/", protect, getVenues);
 router.get("/:id", getVenueById);
 
 // Protected (Owner/Admin)
-router.post("/", protect, createVenue);
-router.put("/:id", protect, updateVenue);
-router.delete("/:id", protect, deleteVenue);
+router.post("/",protect, ownerOnly, createVenue);
+router.put("/:id", protect,ownerOnly, updateVenue);
+router.delete("/:id",protect, ownerOnly, deleteVenue);
 
 module.exports = router;

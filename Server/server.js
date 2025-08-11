@@ -1,6 +1,5 @@
 const express = require("express")
 require("dotenv").config()
-const { notFound, errorHandler } = require("./middlewares/errorMiddleware");
 
 const cors = require("cors")
 const colors = require("colors")
@@ -14,8 +13,6 @@ const app = express()
 app.use(express.json())
 app.use(express.urlencoded({extended : true}))
 app.use(cors())
-app.use(notFound);
-app.use(errorHandler);
 
 //DB connection 
 connectDb()
@@ -24,15 +21,17 @@ connectDb()
 app.get("/" , (req , res) => {
 
     res.json({
-        msg : "TEMPLATE 1 IS RUNNING"
+        msg : "QuickCourt is running"
     })
 
 })
 
 //Authentication routes
 app.use("/api/auth" , require("./routes/Authentication/authRoutes"))
-// venue routes
 app.use("/api/venue" , require("./routes/venueRoutes"))
+app.use("/api/booking" , require("./routes/bookingRoutes"))
+
+app.use("/api/review" , require("./routes/reviewRoutes"))
 
 
 

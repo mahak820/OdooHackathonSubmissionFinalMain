@@ -32,9 +32,11 @@ const venueSchema = new mongoose.Schema(
       type: Number,
       required: true
     },
-    operatingHours: {
-      openingTime: { type: String, required: true }, // e.g. "06:00 AM"
-      closingTime: { type: String, required: true }
+    operatingHours_openingTime: {
+      type : String
+    },
+     operatingHours_closingTime: {
+      type : String
     },
     amenities: {
       type: [String],

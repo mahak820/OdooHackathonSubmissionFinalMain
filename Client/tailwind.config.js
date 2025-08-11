@@ -14,9 +14,14 @@ module.exports = {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   darkMode: "class",
-  theme: {
-    extend: {},
+ theme: {
+    extend: {
+     colors: {
+        foreground: "hsl(var(--foreground))",
+     }
+    },
   },
+
   // THIS IS THE CRITICAL PART
   plugins: [
     function ({ matchUtilities, theme }) {

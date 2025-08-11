@@ -1,13 +1,13 @@
 const expressAsyncHandler = require("express-async-handler");
-const Venue = require("../models/venueModel");
+const Venue = require("../../models/venueSchema");
 
 // @desc Add a new venue
 // @route POST /api/venues
 // @access Private (Owner/Admin)
 const createVenue = expressAsyncHandler(async (req, res) => {
-    const { name, description, address, sportType, pricePerHour, shortLocation, amenities, photos } = req.body;
+    const { name, description, address, sportType, pricePerHour, shortLocation, amenities, photos,operatingHours_openingTime,operatingHours_closingTime } = req.body;
 
-    if (!name || !description || !address || !sportType || !pricePerHour || !shortLocation) {
+    if (!name || !description || !address || !sportType || !pricePerHour || !shortLocation ||!operatingHours_openingTime) {
         res.status(400);
         throw new Error("Please provide all required details");
     }
@@ -22,7 +22,11 @@ const createVenue = expressAsyncHandler(async (req, res) => {
         amenities,
         photos,
         isBooked: false, // by default available
-        owner: req.user._id
+        ownerId: req.user._id,
+        operatingHours_openingTime,
+        operatingHours_closingTime
+
+
     });
 
     res.status(201).json(venue);
@@ -67,12 +71,10 @@ const updateVenue = expressAsyncHandler(async (req, res) => {
         res.status(404);
         throw new Error("Venue not found");
     }
+    
 
     // Only owner or admin can update
-    if (req.user.role !== "admin" && venue.owner.toString() !== req.user._id.toString()) {
-        res.status(401);
-        throw new Error("Not authorized");
-    }
+    
 
     Object.assign(venue, req.body);
     const updatedVenue = await venue.save();
@@ -91,11 +93,7 @@ const deleteVenue = expressAsyncHandler(async (req, res) => {
         throw new Error("Venue not found");
     }
 
-    // Only owner or admin can delete
-    if (req.user.role !== "admin" && venue.owner.toString() !== req.user._id.toString()) {
-        res.status(401);
-        throw new Error("Not authorized");
-    }
+   
 
     await venue.deleteOne();
     res.json({ message: "Venue removed" });

@@ -27,40 +27,19 @@ export function NavbarDemo() {
     if (user) {
       navigate("/dashboard");
     }
-  }, [dispatch, user]);
+  }, [dispatch, user, navigate]);
 
   const navItems = [
-    {
-      name : "Dashboard" ,
-      link : "/dashboard"
-    } ,
-    {
-      name: "Page1",
-      link: "/page1", // This is already set to /page1
-    },
-    {
-      name: "Page2",
-      link: "/Page2",
-    },
-    {
-      name: "Contact",
-      link: "#contact",
-    },
+    { name: "Dashboard", link: "/dashboard" },
+    { name: "Page1", link: "/page1" },
+    { name: "Page2", link: "/Page2" },
+    { name: "Contact", link: "#contact" },
   ];
 
   const landingNavItems = [
-    {
-      name: "features",
-      link: "",
-    },
-    {
-      name: "about",
-      link: "",
-    },
-    {
-      name: "footer",
-      link: "",
-    },
+    { name: "Features", link: "#features" },
+    { name: "About", link: "#about" },
+    { name: "Footer", link: "#footer" },
   ];
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -81,49 +60,12 @@ export function NavbarDemo() {
     navigate("/");
   };
 
-  const handleNavigate = () => {
-    navigate("/login")
-  }
+  const handleNavigateToLogin = () => {
+    navigate("/login");
+  };
 
   return (
     <div className="relative w-full">
-      <style>
-        {`
-                #login::before {
-                    content: "";
-                    position: absolute;
-                    height: 100%;
-                    width: 0%;
-                    top: 0;
-                    left: -40px;
-                    transform: skewX(45deg);
-                    background-color: purple;
-                    z-index: -1;
-                    transition: all 1s;
-                }
-
-                #login:hover::before {
-                    width: 160%;
-                }
-
-                #logout::before {
-                    content: "";
-                    position: absolute;
-                    height: 100%;
-                    width: 0%;
-                    top: 0;
-                    left: -40px;
-                    transform: skewX(45deg);
-                    background-color: red;
-                    z-index: -1;
-                    transition: all 1s;
-                }
-
-                #logout:hover::before {
-                    width: 160%;
-                }
-                `}
-      </style>
       <Navbar>
         {/* Desktop Navigation */}
         <NavBody>
@@ -133,16 +75,14 @@ export function NavbarDemo() {
             {!user ? (
               <>
                 <button
-                  // onClick={handleGoogleLogin}
-                  onClick={handleNavigate}
-
-                  className="login-btn relative overflow-hidden uppercase no-underline border-2 border-[#302B63] px-5 py-2 text-[17px] text-[#302B63] font-bold bg-transparent transition-colors duration-300 hover:text-white rounded-2xl shadow-lg hover:shadow-[#AEA7FF]/50 transform hover:scale-105 group cursor-pointer"
+                  onClick={handleNavigateToLogin}
+                  className="login-btn relative overflow-hidden uppercase no-underline border-2 border-[#FF6B35] px-5 py-2 text-[17px] text-[#FF6B35] font-bold bg-transparent transition-colors duration-300 hover:text-white rounded-2xl shadow-lg hover:shadow-[#FF6B35]/40 transform hover:scale-105 group cursor-pointer"
                 >
                   <span className="relative z-10">Login</span>
                   {/* Filling animation pseudo-element */}
-                  <span className="absolute inset-0 bg-[#AEA7FF] transform scale-y-0 origin-bottom transition-transform duration-500 group-hover:scale-y-100 z-0 rounded-2xl"></span>
+                  <span className="absolute inset-0 bg-[#FF6B35] transform scale-y-0 origin-bottom transition-transform duration-500 group-hover:scale-y-100 z-0 rounded-2xl"></span>
                 </button>
-                <NavbarButton variant="primary">Admin</NavbarButton>
+           
               </>
             ) : (
               <button
@@ -167,40 +107,31 @@ export function NavbarDemo() {
             />
           </MobileNavHeader>
 
-          <MobileNavMenu
-            isOpen={isMobileMenuOpen}
-            onClose={() => setIsMobileMenuOpen(false)}
-          >
-            {navItems.map((item, idx) => (
+          <MobileNavMenu isOpen={isMobileMenuOpen}>
+            {(user ? navItems : landingNavItems).map((item, idx) => (
               <a
                 key={`mobile-link-${idx}`}
-                href={item.link} // This uses item.link, which for Page1 is /page1
+                href={item.link}
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="relative text-neutral-600 dark:text-neutral-300"
               >
-                <span className="block">{item.name}</span>
+                <span className="block py-2">{item.name}</span>
               </a>
             ))}
-            <div className="flex w-full flex-col gap-4">
+            <div className="flex w-full flex-col gap-4 pt-4 border-t border-neutral-200">
               {!user ? (
                 <>
                   <NavbarButton
                     onClick={() => {
                       setIsMobileMenuOpen(false);
-                      handleGoogleLogin();
+                      handleNavigateToLogin();
                     }}
                     variant="primary"
                     className="w-full"
                   >
                     Login
                   </NavbarButton>
-                  <NavbarButton
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    variant="primary"
-                    className="w-full"
-                  >
-                    Admin
-                  </NavbarButton>
+             
                 </>
               ) : (
                 <NavbarButton
@@ -218,8 +149,6 @@ export function NavbarDemo() {
           </MobileNavMenu>
         </MobileNav>
       </Navbar>
-
-      {/* Navbar */}
     </div>
   );
 }

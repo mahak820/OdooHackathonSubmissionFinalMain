@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const asyncHandler = require("express-async-handler");
-const User = require("../models/userModel");
+const User = require("../models/userSchema");
 
 // Protect Routes → only logged in users
 const protect = asyncHandler(async (req, res, next) => {
@@ -39,7 +39,7 @@ const protect = asyncHandler(async (req, res, next) => {
 
 // Allow only Owners
 const ownerOnly = (req, res, next) => {
-  if (req.user && req.user.role === "owner") {
+  if (req.user && req.user.role == "owner") {
     next();
   } else {
     res.status(403);

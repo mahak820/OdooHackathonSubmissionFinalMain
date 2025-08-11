@@ -195,7 +195,7 @@ export const NavbarLogo = () => {
         width={30}
         height={30}
       />
-      <span className="font-bold text-[#917dfc] text-3xl">Startup</span>
+      <span className="font-bold text-[#FF6B35] text-3xl">QuickCourt</span>
     </a>
   );
 };

@@ -1,218 +1,153 @@
-import React, { useState, useEffect } from 'react';
-import { auth, provider } from '../Firebase/firebase';
-import { logoutUser, signInUser } from '../features/auth/authSlice';
-import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { signInWithPopup } from 'firebase/auth';
-// Make sure you have firebase configured in your project.
-// For example, you might have a file like this:
-// import { auth, googleProvider } from './firebase-config';
-// import { signInWithPopup, signInWithEmailAndPassword } from "firebase/auth";
+import React, { useState } from 'react';
+import { Mail, Lock, ArrowRight } from 'lucide-react';
 
-// --- SVG Icons for a polished look ---
+const sportsHeroUrl = 'https://placehold.co/1920x1080/000000/FFFFFF?text=Athletes+in+Action';
 
-const GoogleIcon = () => (
-  <svg className="w-5 h-5 mr-3" viewBox="0 0 48 48">
-    <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12s5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24s8.955,20,20,20s20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"></path>
-    <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"></path>
-    <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.222,0-9.618-3.226-11.283-7.581l-6.522,5.025C9.505,39.556,16.227,44,24,44z"></path>
-    <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571l6.19,5.238C42.012,36.494,44,30.638,44,24C44,22.659,43.862,21.35,43.611,20.083z"></path>
-  </svg>
-);
+const LoginPage = ({ onSwitchToRegister }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-const EmailIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
-    </svg>
-);
-
-const PasswordIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-    </svg>
-);
-
-const SparkleIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-400" viewBox="0 0 20 20" fill="currentColor">
-        <path fillRule="evenodd" d="M10 3a1 1 0 011 1v2.586l1.707-1.707a1 1 0 111.414 1.414L12.586 8H15a1 1 0 110 2h-2.586l1.707 1.707a1 1 0 11-1.414 1.414L11 11.414V14a1 1 0 11-2 0v-2.586l-1.707 1.707a1 1 0 11-1.414-1.414L7.414 10H5a1 1 0 110-2h2.586L5.793 6.293a1 1 0 011.414-1.414L9 6.414V4a1 1 0 011-1z" clipRule="evenodd" />
-    </svg>
-);
-
-
-function LoginPage() {
-  const [activeTab, setActiveTab] = useState('user');
-  const [adminEmail, setAdminEmail] = useState('');
-  const [adminPassword, setAdminPassword] = useState('');
-  const [error, setError] = useState('');
-
-  // --- State for Gemini API features ---
-  const [securityTip, setSecurityTip] = useState('');
-  const [isTipLoading, setIsTipLoading] = useState(false);
-  const { user } = useSelector((state) => state.auth);
-
-  const dispatch = useDispatch() 
-  const navigate = useNavigate()
-
-  // --- Gemini API call function ---
-  const callGeminiAPI = async (prompt) => {
-    const apiKey = "AIzaSyBwwwPQJyeAJXFhou1DKvSs9YIoS6lfJYs"; 
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-    
-    const payload = {
-      contents: [{
-        parts: [{ text: prompt }]
-      }]
-    };
-
-    try {
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      if (!response.ok) {
-        console.error("API Error Response:", await response.text());
-        return `Error: ${response.statusText}`;
-      }
-      
-      const result = await response.json();
-      
-      if (result.candidates && result.candidates.length > 0) {
-        return result.candidates[0].content.parts[0].text;
-      }
-      return "Couldn't generate a response. Please try again.";
-
-    } catch (error) {
-      console.error("Fetch Error:", error);
-      return "Failed to connect to the AI service.";
-    }
-  };
-
-  // --- Fetch security tip when admin tab is active ---
-  useEffect(() => {
-    const fetchSecurityTip = async () => {
-      if (activeTab === 'admin' && !securityTip) {
-        setIsTipLoading(true);
-        const prompt = "Generate a concise, actionable cybersecurity tip for a web application administrator. For example: 'Regularly rotate database credentials and API keys.'";
-        const tip = await callGeminiAPI(prompt);
-        setSecurityTip(tip.replace(/"/g, ''));
-        setIsTipLoading(false);
-      }
-    };
-    fetchSecurityTip();
-  }, [activeTab]);
-
-  useEffect(() => {
-    if (user) {
-      navigate("/dashboard");
-    }
-  }, [dispatch, user]);
-
-  const handleGoogleLogin = async () => {
-    const response = await signInWithPopup(auth, provider);
-    const user = response.user;
-    const formData = {
-      name: user.displayName,
-      email: user.email,
-    };
-    dispatch(signInUser(formData));
-  };
-
-  const handleLogout = async () => {
-    await signOut(auth);
-    dispatch(logoutUser());
-    navigate("/");
-  };
-
-  const handleAdminLogin = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    navigate("/admin")
-  };
+    setIsLoading(true);
 
-  const switchTab = (tab) => {
-    setActiveTab(tab);
-    setError('');
-    setAdminEmail('');
-    setAdminPassword('');
+    // Simulate API call
+    setTimeout(() => {
+      setIsLoading(false);
+      console.log('Login attempt:', { email, password });
+      // Add your login logic here
+    }, 1500);
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen font-sans bg-gray-100">
-      <div className="flex w-full max-w-4xl overflow-hidden bg-white rounded-2xl shadow-2xl">
-        
-        {/* Left Panel: Image */}
-        <div className="hidden md:block md:w-1/2">
-            <img 
-                src="https://placehold.co/600x800/e2e8f0/4a5568?text=Your\nImage\nHere&font=raleway" 
-                alt="Promotional background"
-                className="object-cover w-full h-full"
-                onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/600x800/e2e8f0/4a5568?text=Image+Not+Found'; }}
-            />
-        </div>
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Full Background Image */}
+      <div className="absolute inset-0">
+        <img
+          src={sportsHeroUrl}
+          alt="Athletes in action on sports field"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-black/30"></div>
+      </div>
 
-        {/* Right Panel: Login Form */}
-        <div className="w-full p-8 md:w-1/2 md:p-12">
-            <div className="flex flex-col justify-center h-full">
-                <div>
-                    <div className="mb-8 text-center">
-                        <h2 className="text-3xl font-bold text-gray-900">
-                            {activeTab === 'user' ? 'Sign in to your account' : 'Admin Panel Access'}
-                        </h2>
-                        <p className="mt-2 text-sm text-gray-600">
-                            {activeTab === 'user' ? 'Welcome back! Please sign in below.' : 'Please enter your admin credentials.'}
-                        </p>
-                    </div>
-                    <div className="flex border-b border-gray-200">
-                        <button onClick={() => switchTab('user')} className={`w-full py-3 font-semibold text-sm focus:outline-none transition-all duration-300 ${activeTab === 'user' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-gray-500 hover:text-indigo-600'}`}>User</button>
-                        <button onClick={() => switchTab('admin')} className={`w-full py-3 font-semibold text-sm focus:outline-none transition-all duration-300 ${activeTab === 'admin' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-gray-500 hover:text-indigo-600'}`}>Admin</button>
-                    </div>
-                </div>
+      {/* Centered Rectangular Card */}
+      <div className="relative z-10 min-h-screen flex items-center justify-center p-4 sm:p-8">
+        <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-2xl overflow-hidden w-full max-w-4xl h-auto md:h-[500px] flex flex-col md:flex-row">
 
-                <div className="pt-4 mt-4">
-                    {activeTab === 'user' ? (
-                    <div>
-                        <button onClick={handleGoogleLogin} className="w-full flex justify-center items-center py-3 px-4 font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300">
-                            <GoogleIcon />
-                            Sign in with Google
-                        </button>
-                    </div>
-                    ) : (
-                    <form className="space-y-6" onSubmit={handleAdminLogin}>
-                        <div className="relative">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><EmailIcon /></div>
-                            <input id="email" name="email" type="email" required value={adminEmail} onChange={(e) => setAdminEmail(e.target.value)} className="w-full pl-10 pr-4 py-3 text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="admin@example.com" />
-                        </div>
-                        <div className="relative">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><PasswordIcon /></div>
-                            <input id="password" name="password" type="password" required value={adminPassword} onChange={(e) => setAdminPassword(e.target.value)} className="w-full pl-10 pr-4 py-3 text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="••••••••" />
-                        </div>
-                        {error && <p className="text-sm text-red-600 text-center font-medium">{error}</p>}
-                        <div>
-                            <button type="submit" className="w-full py-3 px-4 font-semibold text-white bg-indigo-600 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300">Log In Securely</button>
-                        </div>
-                        {/* ✨ Admin Security Tip Section */}
-                        <div className="pt-4">
-                            {isTipLoading ? (
-                                <div className="text-center text-sm text-gray-500 animate-pulse">Fetching security tip...</div>
-                            ) : securityTip && (
-                                <div className="p-3 bg-indigo-50 border border-indigo-200 rounded-lg">
-                                    <div className="flex items-center">
-                                        <SparkleIcon />
-                                        <h4 className="ml-2 text-sm font-semibold text-indigo-800">✨ Pro Tip</h4>
-                                    </div>
-                                    <p className="mt-1 text-sm text-indigo-700">{securityTip}</p>
-                                </div>
-                            )}
-                        </div>
-                    </form>
-                    )}
-                </div>
+          {/* Left Half - Sports Text */}
+          <div className="w-full md:w-1/2 bg-gradient-to-br from-orange-500/10 to-teal-500/10 flex items-center justify-center p-8 sm:p-12 text-center md:text-left">
+            <div className="text-center">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight">
+                Your Next
+                <span className="block text-orange-600">Game Awaits</span>
+              </h1>
+              <p className="text-base sm:text-lg text-gray-600 leading-relaxed max-w-sm mx-auto md:mx-0">
+                Book courts instantly. Play passionately. Connect with athletes in your community.
+              </p>
             </div>
+          </div>
+
+          {/* Right Half - Login Form */}
+          <div className="w-full md:w-1/2 bg-white/70 backdrop-blur-sm flex items-center justify-center p-8">
+            <div className="w-full max-w-sm">
+              {/* Header */}
+              <div className="text-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                  Sign in to your account
+                </h2>
+                <p className="text-gray-600 text-sm">
+                  Welcome back! Please sign in below.
+                </p>
+              </div>
+
+              {/* Google Sign In Button */}
+              <button
+                type="button"
+                className="w-full flex items-center justify-center py-3 px-4 border border-gray-300 rounded-lg hover:bg-gray-100 transition-all duration-200 text-gray-800 font-medium mb-6"
+              >
+                <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                </svg>
+                Sign in with Google
+              </button>
+
+              {/* Login Form */}
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Email Input */}
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Mail className="h-5 w-5 text-gray-500" />
+                  </div>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 bg-white/50 text-gray-900 placeholder-gray-500"
+                    placeholder="Enter your email"
+                  />
+                </div>
+
+                {/* Password Input */}
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Lock className="h-5 w-5 text-gray-500" />
+                  </div>
+                  <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 bg-white/50 text-gray-900 placeholder-gray-500"
+                    placeholder="Enter your password"
+                  />
+                </div>
+
+                {/* Submit Button */}
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full flex items-center justify-center py-3 px-4 bg-orange-600 hover:bg-orange-500 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none mt-6"
+                >
+                  {isLoading ? (
+                    <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                  ) : (
+                    <>
+                      Sign In
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </>
+                  )}
+                </button>
+              </form>
+
+              {/* Register Link */}
+              <div className="mt-6 text-center">
+                <p className="text-gray-600 text-sm">
+                  Don't have an account?{' '}
+                  <button
+                    onClick={onSwitchToRegister}
+                    className="text-orange-600 hover:text-orange-500 font-semibold transition-colors duration-200 hover:underline"
+                  >
+                    Sign up here
+                  </button>
+                </p>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
   );
-}
+};
 
 export default LoginPage;
