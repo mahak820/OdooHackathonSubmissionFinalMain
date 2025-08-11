@@ -36,12 +36,13 @@ const HomePage = () => {
       {/* <NavbarDemo/> */}
 
       {/* <Hero /> */}
-      <Hero2/>
-      {/* <Hero3/> */}
+      {/* <Hero2/> */}
+      <Hero3/>
+      
       {/* <Hero4/> */}
       
       {/* <StickySwappingFeature /> */}
-      <Features/>
+      {/* <Features/> */}
       {/* <Features4/> */}
       {/* <TextParallaxContentExample/> */}
       

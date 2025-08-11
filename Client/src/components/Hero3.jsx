@@ -22,11 +22,10 @@ const Hero3 = () => {
                             // Text color is now permanently white
                             className="text-4xl md:text-4xl lg:text-5xl font-bold text-gray-300 max-w-4xl leading-relaxed lg:leading-snug mb-8"
                           >
-                            With insomnia, nothing&apos;s real. Everything is far away. Everything
-                            is a{" "}
-                            <Highlight className="text-white">
+                            Find Players & venues nearby{" "}
+                            {/* <Highlight className="text-white">
                               copy, of a copy, of a copy.
-                            </Highlight>
+                            </Highlight> */}
                           </motion.h1>
             
                           <motion.div
