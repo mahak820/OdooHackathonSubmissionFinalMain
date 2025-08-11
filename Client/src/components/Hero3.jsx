@@ -22,7 +22,7 @@ const Hero3 = () => {
                             // Text color is now permanently white
                             className="text-4xl md:text-4xl lg:text-5xl font-bold text-gray-300 max-w-4xl leading-relaxed lg:leading-snug mb-8"
                           >
-                            Find Players & venues nearby{" "}
+                            Find Players & venues {" "}
                             {/* <Highlight className="text-white">
                               copy, of a copy, of a copy.
                             </Highlight> */}
