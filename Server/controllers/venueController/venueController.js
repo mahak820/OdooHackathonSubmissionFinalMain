@@ -24,6 +24,7 @@ const createVenue = expressAsyncHandler(async (req, res) => {
         amenities,
         photos,
         isBooked: false, // by default available
+        isApproved : false ,
         ownerId: req.user._id,
         operatingHours_openingTime,
         operatingHours_closingTime
@@ -64,7 +65,7 @@ const getVenueById = expressAsyncHandler(async (req, res) => {
 });
 
 const getVenueByUserId = expressAsyncHandler(async (req, res) => {
-    const { userId } = req.params.userId;
+    const { userId } = req.params;
 
     const venues = await Venue.find({ ownerId : userId });
 

@@ -35,6 +35,34 @@ const getAllVenuesOfOwnerService = async (userId, token) => {
   return response.data;  // <-- return yaha zaroori hai
 };
 
+//Create Venue
+const createVenue = async (formData, token) => {
+  
+  const options = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+
+  const response = await axios.post(`${api}/venue`, formData , options);
+//   console.log("Response data:", response.data);
+  return response.data;  
+};
+
+//Update Venue
+const updateVenue = async (formData, venueid, token) => {
+  
+  const options = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+
+  const response = await axios.put(`${api}/venue/${venueid}`, formData , options);
+//   console.log("Response data:", response.data);
+  return response.data;  
+};
+
 
 
 // const deteleProjects = async(_pid , token) =>{
@@ -50,5 +78,5 @@ const getAllVenuesOfOwnerService = async (userId, token) => {
 // }
 
 
-const venueService = {getvenues,getvenue , getAllVenuesOfOwnerService}
+const venueService = {getvenues,getvenue , getAllVenuesOfOwnerService ,createVenue , updateVenue}
 export default venueService

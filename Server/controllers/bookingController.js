@@ -94,19 +94,25 @@ const createBooking = expressAsyncHandler(async (req, res) => {
     startTime,
     endTime,
     totalPrice,
-    paymentStatus: "pending" // default status
+    paymentStatus: "pending",
+    isBooked: true
   });
 
-  res.status(201).json(booking);
+     let updatedBooking = await Venue.findByIdAndUpdate(req.params.venueId, {isBooked : true}, {new : true})
+
+
+  res.status(201).json(updatedBooking );
 });
 
 // Get bookings of logged in user
 const getMyBookings = expressAsyncHandler(async (req, res) => {
-  const bookings = await Booking.find({ userId: req.user._id }).populate("venueId");
+  // Get the userId from the URL parameters
+  const userId = req.params.uid;
+  
+  // Find bookings for that specific userId and populate the venue details
+  const bookings = await Booking.find({ userId: userId }).populate("venueId", "name isBooked");
+  
   res.json(bookings);
-  console.log(req.user._id)
-  console.log("Booking userId:", booking.userId);
-
 });
 
 // Get all bookings (admin)
@@ -132,10 +138,26 @@ const bookingId = req.params.id;
   res.status(200).json({ message: "Booking deleted successfully" });
 });
 
+//Get All Booking of a venue 
+const getAllBookingsOfOwner = expressAsyncHandler(async (req, res) => {
+  // Step 1: Get all venues owned by the logged-in owner
+  const ownerVenues = await Venue.find({ ownerId: req.user._id }).select("_id");
+
+  // Step 2: Extract the venue IDs
+  const venueIds = ownerVenues.map(v => v._id);
+
+  // Step 3: Find bookings only for these venues
+  const bookings = await Booking.find({ venueId: { $in: venueIds } })
+    .populate("venueId", "name address")
+    .populate("userId", "name email");
+
+  res.json(bookings);
+});
+
 
 module.exports = {
   createBooking,
   getMyBookings,
   getAllBookings,
-  updateBooking,deleteBooking
+  updateBooking,deleteBooking , getAllBookingsOfOwner
 };

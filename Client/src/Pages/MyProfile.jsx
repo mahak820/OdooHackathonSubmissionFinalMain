@@ -1,11 +1,13 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useDispatch, useSelector } from 'react-redux';
 
 import {
   Edit, Trash2, AlertTriangle, ArrowLeft, Calendar, Mail, User,
   Target, Zap, Waves, ShieldCheck, Circle, Clock, MapPin, Activity, Star, Award, TrendingUp
 } from 'lucide-react';
+import { fetchmyBooking } from '../features/booking/bookingSlice';
 
 // --- Helper for Sport Icons ---
 const sportIcons = {
@@ -16,8 +18,8 @@ const sportIcons = {
   Default: <ShieldCheck size={16} className="inline mr-2 text-[#FF6B35]" />
 };
 
-// --- MOCK DATA ---
-const userProfileData = {
+// --- MOCK DATA (kept as fallback for the sidebar) ---
+const fallbackProfileData = {
   name: 'Rohan Sharma',
   email: 'rohan.sharma@example.com',
   profilePhoto: 'https://images.unsplash.com/photo-1615109398623-88346a601842?w=500&q=80',
@@ -41,6 +43,7 @@ const initialBookingsData = [
 
 const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm }) => {
   if (!isOpen) return null;
+  
   return (
     <AnimatePresence>
       <motion.div 
@@ -149,8 +152,12 @@ const BookingCard = ({ booking, onUpdate, onDelete }) => {
   );
 };
 
-// --- Enhanced Profile Sidebar Component ---
-const ProfileSidebar = ({ navigate }) => {
+// --- Corrected Profile Sidebar Component ---
+// This component now accepts user as a prop
+const ProfileSidebar = ({ navigate, user }) => {
+  // Use user prop, with fallback to mock data for a complete UI
+  const displayUser = { ...fallbackProfileData, ...user };
+
   return (
     <div className="space-y-6">
       
@@ -180,22 +187,22 @@ const ProfileSidebar = ({ navigate }) => {
       >
         <div className="relative inline-block mb-4">
           <img 
-            src={userProfileData.profilePhoto} 
-            alt={userProfileData.name} 
+            src={displayUser.profilePhoto} 
+            alt={displayUser.name} 
             className="w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg" 
           />
           <div className="absolute -bottom-1 -right-1 bg-gradient-to-r from-[#4ECDC4] to-[#FF6B35] rounded-full p-2 shadow-lg">
             <User size={12} className="text-white" />
           </div>
         </div>
-        <h2 className="text-xl font-bold text-gray-800 mb-2">{userProfileData.name}</h2>
+        <h2 className="text-xl font-bold text-gray-800 mb-2">{displayUser.name}</h2>
         <div className="flex items-center justify-center gap-1 text-gray-600 text-sm mb-2">
           <Mail size={14} className="text-[#4ECDC4]" />
-          <span>{userProfileData.email}</span>
+          <span>{displayUser.email}</span>
         </div>
         <div className="flex items-center justify-center gap-1 text-gray-500 text-xs">
           <Calendar size={12} className="text-[#FF6B35]" />
-          <span>Since {new Date(userProfileData.joinedDate).toLocaleDateString()}</span>
+          <span>Since {new Date(displayUser.joinedDate).toLocaleDateString()}</span>
         </div>
       </motion.div>
 
@@ -213,15 +220,15 @@ const ProfileSidebar = ({ navigate }) => {
         <div className="space-y-3">
           <div className="flex justify-between items-center p-3 bg-gradient-to-r from-[#4ECDC4]/10 to-[#4ECDC4]/5 rounded-xl">
             <span className="text-gray-700 text-sm font-medium">Total Bookings</span>
-            <span className="text-[#4ECDC4] font-bold text-lg">{userProfileData.totalBookings}</span>
+            <span className="text-[#4ECDC4] font-bold text-lg">{displayUser.totalBookings}</span>
           </div>
           <div className="flex justify-between items-center p-3 bg-gradient-to-r from-[#FF6B35]/10 to-[#FF6B35]/5 rounded-xl">
             <span className="text-gray-700 text-sm font-medium">Upcoming</span>
-            <span className="text-[#FF6B35] font-bold text-lg">{userProfileData.upcomingCount}</span>
+            <span className="text-[#FF6B35] font-bold text-lg">{displayUser.upcomingCount}</span>
           </div>
           <div className="flex justify-between items-center p-3 bg-gray-50 rounded-xl">
             <span className="text-gray-700 text-sm font-medium">Completed</span>
-            <span className="text-gray-600 font-bold text-lg">{userProfileData.completedCount}</span>
+            <span className="text-gray-600 font-bold text-lg">{displayUser.completedCount}</span>
           </div>
         </div>
       </motion.div>
@@ -240,13 +247,13 @@ const ProfileSidebar = ({ navigate }) => {
         <div className="space-y-3">
           <div className="p-3 bg-gray-50 rounded-xl">
             <p className="text-xs text-gray-500 uppercase tracking-wide">Favorite Venue</p>
-            <p className="text-gray-800 font-semibold">{userProfileData.favoriteVenue}</p>
+            <p className="text-gray-800 font-semibold">{displayUser.favoriteVenue}</p>
           </div>
           <div className="p-3 bg-gray-50 rounded-xl">
             <p className="text-xs text-gray-500 uppercase tracking-wide">Preferred Sport</p>
             <p className="text-gray-800 font-semibold flex items-center">
-              {sportIcons[userProfileData.preferredSport]}
-              {userProfileData.preferredSport}
+              {sportIcons[displayUser.preferredSport] || sportIcons.Default}
+              {displayUser.preferredSport}
             </p>
           </div>
         </div>
@@ -264,7 +271,6 @@ const ProfileSidebar = ({ navigate }) => {
         <Edit size={18} />
         Edit Profile
       </motion.button>
-
     </div>
   );
 };
@@ -272,11 +278,21 @@ const ProfileSidebar = ({ navigate }) => {
 // --- Main Profile Page Component ---
 const MyProfilePage = () => {
   const [activeTab, setActiveTab] = useState('upcoming');
-  const [bookings, setBookings] = useState(initialBookingsData);
+//  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [bookingToDelete, setBookingToDelete] = useState(null);
   const navigate = useNavigate || (() => {});
+ const dispatch = useDispatch()
+  const {user} = useSelector(state => state.auth);
+    const {bookings} = useSelector(state => state.booking);
 
+  console.log(user)
+  const userId = user.id
+  console.log(userId)
+
+  useEffect(() =>{
+  dispatch(fetchmyBooking({userId : user.id}))
+  },[])
   const upcomingBookings = useMemo(() => bookings.filter(b => b.status === 'upcoming'), [bookings]);
   const pastBookings = useMemo(() => bookings.filter(b => b.status === 'past'), [bookings]);
 
@@ -302,7 +318,8 @@ const MyProfilePage = () => {
             {/* Left Sidebar - Profile (1/3 width) */}
             <div className="lg:col-span-1">
               <div className="sticky top-8">
-                <ProfileSidebar navigate={navigate} />
+                {/* user prop is passed here */}
+                <ProfileSidebar navigate={navigate} user={user} />
               </div>
             </div>
             

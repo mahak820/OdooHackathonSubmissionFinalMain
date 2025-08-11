@@ -33,6 +33,8 @@ app.use("/api/booking" , require("./routes/bookingRoutes"))
 
 app.use("/api/review" , require("./routes/reviewRoutes"))
 
+app.use("/api/admin" , require("./routes/AdminRoutes/adminRoutes"))
+
 
 
 app.listen(PORT , () => {

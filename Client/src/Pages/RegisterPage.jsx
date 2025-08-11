@@ -5,10 +5,9 @@ import { useNavigate } from 'react-router-dom';
 import { signInUser } from '../features/auth/authSlice';
 import { toast } from 'react-toastify';
 
-const sportsHeroUrl = 'https://placehold.co/1920x1080/000000/FFFFFF?text=Athletes+in+Action';
+const sportsHeroUrl = 'https://wallpaperaccess.com/full/5004778.jpg';
 
     //  const {name , email,password,role,city,phone} = req.body
-
 
 const RegisterPage = ({ onSwitchToLogin }) => {
   const [formData, setFormData] = useState({
@@ -30,7 +29,7 @@ const RegisterPage = ({ onSwitchToLogin }) => {
 
    useEffect(() => {
       if (user && user.role == "owner") {
-        navigate("/ownerDashboard");
+        navigate("/owner/dashboard");
       }
       else if(user){
         navigate("/")
@@ -100,21 +99,32 @@ const RegisterPage = ({ onSwitchToLogin }) => {
       </div>
 
       <div className="relative z-10 min-h-screen flex items-center justify-center p-4 sm:p-8">
-        <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-2xl overflow-hidden w-full max-w-5xl h-auto flex flex-col md:flex-row">
+        <div className="bg-white/90 rounded-2xl shadow-2xl overflow-hidden w-full max-w-5xl h-auto flex flex-col md:flex-row">
           
-          <div className="w-full md:w-1/2 bg-gradient-to-br from-teal-500/10 to-orange-500/10 flex items-center justify-center p-8 sm:p-12 text-center md:text-left">
+          <div className="w-full md:w-1/2 bg-gradient-to-br from-teal-500/80 to-orange-500/80 flex items-center justify-center p-8 sm:p-12 text-center md:text-left">
             <div className="text-center">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight">
-                Join The
-                <span className="block text-teal-600">Champion's League</span>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 sm:mb-6 leading-tight drop-shadow-lg">
+                Start Your
+                <span className="block text-orange-200">Athletic Journey</span>
               </h1>
-              <p className="text-base sm:text-lg text-gray-600 leading-relaxed max-w-sm mx-auto md:mx-0">
-                Connect with athletes. Reserve your court. Elevate your game to the next level.
-              </p>
+              <div className="space-y-4 text-white/90 drop-shadow-md">
+                <p className="text-base sm:text-lg leading-relaxed max-w-sm mx-auto md:mx-0">
+                  🏆 Join thousands of athletes
+                </p>
+                <p className="text-base sm:text-lg leading-relaxed max-w-sm mx-auto md:mx-0">
+                  🌟 Access premium sports facilities
+                </p>
+                <p className="text-base sm:text-lg leading-relaxed max-w-sm mx-auto md:mx-0">
+                  ⚡ Book courts instantly, anytime
+                </p>
+                <p className="text-sm sm:text-base text-orange-200 font-semibold mt-6 italic">
+                  "Every champion was once a beginner who refused to give up"
+                </p>
+              </div>
             </div>
           </div>
 
-          <div className="w-full md:w-1/2 bg-white/70 backdrop-blur-sm flex items-center justify-center p-8">
+          <div className="w-full md:w-1/2 bg-white/90 flex items-center justify-center p-8">
             <div className="w-full max-w-sm">
               <div className="text-center mb-6">
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">
@@ -136,7 +146,7 @@ const RegisterPage = ({ onSwitchToLogin }) => {
                     required
                     value={formData.name}
                     onChange={handleChange}
-                    className={`w-full pl-9 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 bg-white/50 text-gray-900 placeholder-gray-500 text-sm ${
+                    className={`w-full pl-9 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 bg-white/90 text-gray-900 placeholder-gray-500 text-sm ${
                       errors.name ? 'border-red-500' : 'border-gray-300'
                     }`}
                     placeholder="Full Name"
@@ -154,7 +164,7 @@ const RegisterPage = ({ onSwitchToLogin }) => {
                     required
                     value={formData.email}
                     onChange={handleChange}
-                    className={`w-full pl-9 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 bg-white/50 text-gray-900 placeholder-gray-500 text-sm ${
+                    className={`w-full pl-9 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 bg-white/90 text-gray-900 placeholder-gray-500 text-sm ${
                       errors.email ? 'border-red-500' : 'border-gray-300'
                     }`}
                     placeholder="Email Address"
@@ -172,7 +182,7 @@ const RegisterPage = ({ onSwitchToLogin }) => {
                     required
                     value={formData.phone}
                     onChange={handleChange}
-                    className={`w-full pl-9 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 bg-white/50 text-gray-900 placeholder-gray-500 text-sm ${
+                    className={`w-full pl-9 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 bg-white/90 text-gray-900 placeholder-gray-500 text-sm ${
                       errors.phone ? 'border-red-500' : 'border-gray-300'
                     }`}
                     placeholder="Phone Number"
@@ -190,7 +200,7 @@ const RegisterPage = ({ onSwitchToLogin }) => {
                     required
                     value={formData.city}
                     onChange={handleChange}
-                    className={`w-full pl-9 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 bg-white/50 text-gray-900 placeholder-gray-500 text-sm ${
+                    className={`w-full pl-9 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 bg-white/90 text-gray-900 placeholder-gray-500 text-sm ${
                       errors.city ? 'border-red-500' : 'border-gray-300'
                     }`}
                     placeholder="City"
@@ -208,7 +218,7 @@ const RegisterPage = ({ onSwitchToLogin }) => {
                     required
                     value={formData.password}
                     onChange={handleChange}
-                    className={`w-full pl-9 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 bg-white/50 text-gray-900 placeholder-gray-500 text-sm ${
+                    className={`w-full pl-9 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 bg-white/90 text-gray-900 placeholder-gray-500 text-sm ${
                       errors.password ? 'border-red-500' : 'border-gray-300'
                     }`}
                     placeholder="Password"
@@ -226,7 +236,7 @@ const RegisterPage = ({ onSwitchToLogin }) => {
                     required
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    className={`w-full pl-9 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 bg-white/50 text-gray-900 placeholder-gray-500 text-sm ${
+                    className={`w-full pl-9 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 bg-white/90 text-gray-900 placeholder-gray-500 text-sm ${
                       errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
                     }`}
                     placeholder="Confirm Password"
@@ -282,7 +292,7 @@ const RegisterPage = ({ onSwitchToLogin }) => {
                 <p className="text-gray-600 text-xs">
                   Already have an account?{' '}
                   <button
-                    onClick={onSwitchToLogin}
+                    onClick={() => navigate("/login")}
                     className="text-orange-600 hover:text-orange-500 font-semibold transition-colors duration-200 hover:underline"
                   >
                     Sign in here

@@ -72,6 +72,42 @@ const venueSlice = createSlice({
             state.isSuccess = false;
             state.message = action.error.message;
       })
+      //Create Venue 
+      .addCase(createVenue.pending, (state) => {
+            state.isLoading = true;
+            state.isError = false;
+            state.isSuccess = false;
+      })
+      .addCase(createVenue.fulfilled, (state, action) => {
+            state.isLoading = false
+            state.isError = false
+            state.isSuccess = true
+            state.venues = [...state.venues , action.payload]
+      })
+      .addCase(createVenue.rejected, (state, action) => {
+            state.isLoading = false;
+            state.isError = true;
+            state.isSuccess = false;
+            state.message = action.error.message;
+      })
+      //Update Venue 
+      .addCase(updateVenue.pending, (state) => {
+            state.isLoading = true;
+            state.isError = false;
+            state.isSuccess = false;
+      })
+      .addCase(updateVenue.fulfilled, (state, action) => {
+            state.isLoading = false
+            state.isError = false
+            state.isSuccess = true
+            state.venues = state.venues.map((venue) => venue._id === action.payload._id ? action.payload : venue)
+      })
+      .addCase(updateVenue.rejected, (state, action) => {
+            state.isLoading = false;
+            state.isError = true;
+            state.isSuccess = false;
+            state.message = action.error.message;
+      })
          // GET topics
         // .addCase(getStudentProjects.pending ,(state,action)=>{
         //         state.isLoading = true
@@ -131,17 +167,42 @@ const token = thunkAPI.getState().auth.user.token;
 //GET ALL FACILITIES OF OWNER 
 
 export const getAllVenuesOfOwner = createAsyncThunk("FETCH/All_Venues_Owner", async(_ ,thunkAPI)=>{
-    // console.log(venueId) 
-    console.log("Hellooo")
-    // const userData = thunkAPI.getState().auth.user
-    // console.log(userData)
+
      const userId = thunkAPI.getState().auth.user.id
 
     const token = thunkAPI.getState().auth.user.token
-    // console.log(token) 
+
     console.log(userId)
     try{
  return await venueService.getAllVenuesOfOwnerService(userId,token)
+    }catch(error){
+       const message = error.response.data.message
+       return thunkAPI.rejectWithValue(message) 
+    }
+ })
+
+ //Create venue
+ export const createVenue = createAsyncThunk("ADD/VENUE", async(formData ,thunkAPI)=>{
+    
+   
+    const token = thunkAPI.getState().auth.user.token
+
+    try{
+        return await venueService.createVenue(formData,token)
+    }catch(error){
+       const message = error.response.data.message
+       return thunkAPI.rejectWithValue(message) 
+    }
+ })
+
+  //Update  venue
+ export const updateVenue = createAsyncThunk("UPDATE/VENUE", async({formData , venueid} ,thunkAPI)=>{
+    
+//    console.log(venueid)
+    const token = thunkAPI.getState().auth.user.token
+
+    try{
+        return await venueService.updateVenue(formData , venueid , token)
     }catch(error){
        const message = error.response.data.message
        return thunkAPI.rejectWithValue(message) 

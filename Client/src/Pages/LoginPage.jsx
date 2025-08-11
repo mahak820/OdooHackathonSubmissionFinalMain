@@ -9,7 +9,7 @@ import { toast } from 'react-toastify';
 // In a real app, you would import your actual login action like this:
 // import { loginUser } from '../features/auth/authSlice';
 
-const sportsHeroUrl = 'https://placehold.co/1920x1080/000000/FFFFFF?text=Athletes+in+Action';
+const sportsHeroUrl = 'https://wallpaperaccess.com/full/5004778.jpg';
 
 const LoginPage = ({ onSwitchToRegister }) => {
   // ADDED: Initialize the dispatch function
@@ -20,7 +20,10 @@ const LoginPage = ({ onSwitchToRegister }) => {
 
    useEffect(() => {
     if (user && user.role == "owner") {
-      navigate("/ownerDashboard");
+      navigate("/owner/dashboard");
+    }
+    else if (user && user.role == "admin") {
+      navigate("/admin/dashboard")
     }
     else if (user) {
       navigate("/")
@@ -64,8 +67,6 @@ const LoginPage = ({ onSwitchToRegister }) => {
 
       dispatch(loginUser(formData))
 
-
-
     }, 1500);
   };
 
@@ -78,28 +79,39 @@ const LoginPage = ({ onSwitchToRegister }) => {
           alt="Athletes in action on sports field"
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-black/30"></div>
+        <div className="absolute inset-0 bg-black/20"></div>
       </div>
 
       {/* Centered Rectangular Card */}
       <div className="relative z-10 min-h-screen flex items-center justify-center p-4 sm:p-8">
-        <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-2xl overflow-hidden w-full max-w-4xl h-auto md:h-[500px] flex flex-col md:flex-row">
+        <div className="bg-white/90 rounded-2xl shadow-2xl overflow-hidden w-full max-w-4xl h-auto md:h-[500px] flex flex-col md:flex-row">
 
           {/* Left Half - Sports Text */}
-          <div className="w-full md:w-1/2 bg-gradient-to-br from-orange-500/10 to-teal-500/10 flex items-center justify-center p-8 sm:p-12 text-center md:text-left">
+          <div className="w-full md:w-1/2 bg-gradient-to-br from-orange-500/80 to-teal-500/80 flex items-center justify-center p-8 sm:p-12 text-center md:text-left">
             <div className="text-center">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight">
-                Your Next
-                <span className="block text-orange-600">Game Awaits</span>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 sm:mb-6 leading-tight drop-shadow-lg">
+                Play Without
+                <span className="block text-orange-300">Boundaries</span>
               </h1>
-              <p className="text-base sm:text-lg text-gray-600 leading-relaxed max-w-sm mx-auto md:mx-0">
-                Book courts instantly. Play passionately. Connect with athletes in your community.
-              </p>
+              <div className="space-y-4 text-white/90 drop-shadow-md">
+                <p className="text-base sm:text-lg leading-relaxed max-w-sm mx-auto md:mx-0">
+                  🏀 Basketball courts in your neighborhood
+                </p>
+                <p className="text-base sm:text-lg leading-relaxed max-w-sm mx-auto md:mx-0">
+                  ⚽ Soccer fields ready for action
+                </p>
+                <p className="text-base sm:text-lg leading-relaxed max-w-sm mx-auto md:mx-0">
+                  🎾 Tennis courts for every skill level
+                </p>
+                <p className="text-sm sm:text-base text-orange-200 font-semibold mt-6 italic">
+                  "Where champions are made, one game at a time"
+                </p>
+              </div>
             </div>
           </div>
 
           {/* Right Half - Login Form */}
-          <div className="w-full md:w-1/2 bg-white/70 backdrop-blur-sm flex items-center justify-center p-8">
+          <div className="w-full md:w-1/2 bg-white/90 flex items-center justify-center p-8">
             <div className="w-full max-w-sm">
               {/* Header */}
               <div className="text-center mb-6">
@@ -139,7 +151,7 @@ const LoginPage = ({ onSwitchToRegister }) => {
                     required
                     value={formData.email}       // CHANGED
                     onChange={handleChange}      // CHANGED
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 bg-white/50 text-gray-900 placeholder-gray-500"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 bg-white/90 text-gray-900 placeholder-gray-500"
                     placeholder="Enter your email"
                   />
                 </div>
@@ -156,7 +168,7 @@ const LoginPage = ({ onSwitchToRegister }) => {
                     required
                     value={formData.password}    // CHANGED
                     onChange={handleChange}      // CHANGED
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 bg-white/50 text-gray-900 placeholder-gray-500"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 bg-white/90 text-gray-900 placeholder-gray-500"
                     placeholder="Enter your password"
                   />
                 </div>
