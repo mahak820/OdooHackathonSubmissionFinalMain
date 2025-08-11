@@ -3,18 +3,37 @@ const {mongoose} = require("mongoose");
 const userSchema = new mongoose.Schema(
 
     {
-        name : {
-            type : String ,
-            required : true
-        } ,
-        email : {
-            type : String ,
-            required : true
-        } , 
-        isAdmin :{
-            type : Boolean ,
-            default : false
-        }
+        name: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true
+    },
+    password: {
+      type: String,
+      required: true
+    },
+    phone: {
+      type: String,
+      trim: true
+    },
+    profilePic: {
+      type: String, // Image URL
+      default: ""
+    },
+    role: {
+      type: String,
+      enum: ["user", "owner", "admin"],
+      default: "user"
+    },city :{
+      type : String,
+      required : true
+    }
     } , 
     {
         timestamps : true
