@@ -1,5 +1,7 @@
 const expressAsyncHandler = require("express-async-handler");
 const Venue = require("../../models/venueSchema");
+const mongoose = require('mongoose');
+
 
 // @desc Add a new venue
 // @route POST /api/venues
@@ -61,6 +63,17 @@ const getVenueById = expressAsyncHandler(async (req, res) => {
     res.json(venue);
 });
 
+const getVenueByUserId = expressAsyncHandler(async (req, res) => {
+    const { userId } = req.params.userId;
+
+    const venues = await Venue.find({ ownerId : userId });
+
+    if (!venues || venues.length === 0) {
+        return res.status(404).json({ message: "Venue not found" });
+    }
+
+    res.json(venues);
+});
 // @desc Update venue
 // @route PUT /api/venues/:id
 // @access Private (Owner/Admin)
@@ -104,5 +117,6 @@ module.exports = {
     getVenues,
     getVenueById,
     updateVenue,
-    deleteVenue
+    deleteVenue , 
+    getVenueByUserId
 };

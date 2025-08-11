@@ -11,7 +11,10 @@ const FeaturedVenues = () => {
 
   // Add null check and fallback to empty array
   const venuesList = venues || [];
-  console.log(venuesList);
+
+  const handleNavigates = (venueId) => {
+    navigate(`/venue/${venueId}`)
+  }
 
   const navigate = useNavigate();
   const handleNavigate = () => {
@@ -40,7 +43,7 @@ const FeaturedVenues = () => {
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [dispatch , venues]);
+  }, [dispatch]);
   
   // Use venuesList with proper fallback and ensure minimum 1 slide
   const totalSlides = Math.max(1, Math.ceil(venuesList.length / cardsPerView));
@@ -95,7 +98,7 @@ const FeaturedVenues = () => {
           <SportTag sport={venue.sportType || 'Sport'} />
         </div>
         
-        <button className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 rounded-lg transition-all duration-200 transform hover:scale-105 active:scale-95 text-sm">
+        <button onClick={() => handleNavigates(venue._id)} className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 rounded-lg transition-all duration-200 transform hover:scale-105 active:scale-95 text-sm">
           Book Now
         </button>
       </div>

@@ -11,6 +11,8 @@ import AdminHome from './Pages/AdminHome'
 import AllVenuesPage from './Pages/AllVenues'
 import VenueDetailsPage from './Pages/VenueDetailsPage'
 import RegisterPage from './Pages/RegisterPage'
+import MyProfilePage from './Pages/MyProfile'
+import OwnerDashboard from './Pages/Owner Pages/ownerDashboard'
 
 const App = () => {
   return (
@@ -26,6 +28,13 @@ const App = () => {
           <Route path='/dashboard' element={<Dashboard/>}/>
           <Route path='/allVenues' element={<AllVenuesPage/>}/>
           <Route path="/venue/:venueId" element={<VenueDetailsPage />} />
+          <Route path="/myProfile" element={<MyProfilePage/>} />
+          
+           {/* Owner pages routes */}
+          <Route path="/ownerDashboard" element={<OwnerDashboard/>} />
+
+
+
           <Route path='/page1' element={<Page1/>}/>
           <Route path='/admin' element={<AdminHome/>}/>
         </Routes>

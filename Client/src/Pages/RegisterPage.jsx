@@ -29,9 +29,14 @@ const RegisterPage = ({ onSwitchToLogin }) => {
   const {user , isError , message } = useSelector(state => state.auth)
 
    useEffect(() => {
-      if (user) {
-        navigate("/");
+      if (user && user.role == "owner") {
+        navigate("/ownerDashboard");
       }
+      else if(user){
+        navigate("/")
+      }
+
+      
   
       if(isError) {
         toast.error("Invalid Credentials")

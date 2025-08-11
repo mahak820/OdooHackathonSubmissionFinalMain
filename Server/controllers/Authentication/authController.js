@@ -71,7 +71,16 @@ const loginUser = expressAsyncHandler( async (req, res) => {
       { expiresIn: "7d" }
     );
 
-    res.status(200).json({ message: "Login successful", token });
+    res.status(201).json({name : user.name,
+        email : user.email,
+        role : user.role,
+        city : user.city,
+        phone : user.phone,
+        id: user._id,
+        isAdmin : user.isAdmin,
+        isApproved : user.isApproved,
+               token: generateToken(user._id)
+    })
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }

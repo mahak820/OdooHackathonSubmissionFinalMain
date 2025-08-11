@@ -4,12 +4,12 @@ import { api } from "../../../Api/api";
 const getvenues = async () => {
     // console.log("object")
   const response = await axios.get(`${api}/venue`);
-  console.log(response.data)
+//   console.log(response.data)
   return response.data;
 };
 
 const getvenue = async (venueId, token) => {
-  console.log("Service ID:", venueId);
+//   console.log("Service ID:", venueId);
   const options = {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -17,9 +17,24 @@ const getvenue = async (venueId, token) => {
   };
 
   const response = await axios.get(`${api}/venue/${venueId}`, options);
-  console.log("Response data:", response.data);
+//   console.log("Response data:", response.data);
   return response.data;  // <-- return yaha zaroori hai
 };
+
+//Gett all venues of owner 
+const getAllVenuesOfOwnerService = async (userId, token) => {
+  
+  const options = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+
+  const response = await axios.get(`${api}/venue/owner/${userId}`, options);
+//   console.log("Response data:", response.data);
+  return response.data;  // <-- return yaha zaroori hai
+};
+
 
 
 // const deteleProjects = async(_pid , token) =>{
@@ -35,5 +50,5 @@ const getvenue = async (venueId, token) => {
 // }
 
 
-const venueService = {getvenues,getvenue}
+const venueService = {getvenues,getvenue , getAllVenuesOfOwnerService}
 export default venueService

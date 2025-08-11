@@ -64,7 +64,7 @@ export function NavbarDemo() {
 
   const handleProfileClick = () => {
     // Add your profile navigation logic here
-    navigate("/profile");
+    navigate("/myProfile");
   };
 
   return (

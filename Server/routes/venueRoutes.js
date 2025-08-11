@@ -5,7 +5,8 @@ const {
     getVenues,
     getVenueById,
     updateVenue,
-    deleteVenue
+    deleteVenue,
+    getVenueByUserId
 } = require("../controllers/venueController/venueController");
 
 const { protect, admin, ownerOnly } = require("../middlewares/authMiddleWare");
@@ -13,6 +14,8 @@ const { protect, admin, ownerOnly } = require("../middlewares/authMiddleWare");
 // Public
 router.get("/",  getVenues);
 router.get("/:venueid", getVenueById);
+//New
+router.get("/owner/:userId", protect , ownerOnly,  getVenueByUserId);
 
 // Protected (Owner/Admin)
 router.post("/",protect, ownerOnly, createVenue);

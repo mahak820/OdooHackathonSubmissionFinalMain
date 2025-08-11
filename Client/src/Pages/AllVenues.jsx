@@ -251,7 +251,7 @@ const venuesPage = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {filteredVenues.map(venue => (
-                  <VenueCard key={venue.id} venue={venue} />
+                  <VenueCard key={venue._id} venue={venue} />
                 ))}
               </div>
             )}
