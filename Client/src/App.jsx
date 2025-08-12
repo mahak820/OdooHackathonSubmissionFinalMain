@@ -25,6 +25,7 @@ import OwnerLayout from './components/OwnerLayout';
 // import AdminLayout from './components/admin/AdminLayout'; // Import the new AdminLayout
 import AdminDashboard from './Pages/Admin Pages/AdminDashboard';
 import AdminLayout from './components/AdminLayout';
+import FacilityApprovalsPage from './Pages/Admin Pages/FacilityApprovalsPage';
 
 const App = () => {
   return (
@@ -54,6 +55,8 @@ const App = () => {
           {/* All admin pages are now nested inside the AdminLayout */}
           <Route path="/admin" element={<AdminLayout />}>
             <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="approvals" element={<FacilityApprovalsPage />} />
+            
             {/* Add other admin routes here as you build them */}
             {/* e.g., <Route path="approvals" element={<FacilityApprovalsPage />} /> */}
             {/* e.g., <Route path="users" element={<UserManagementPage />} /> */}

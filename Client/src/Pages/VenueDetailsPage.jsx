@@ -42,12 +42,12 @@ const VenueDetailsPage = () => {
     }, [venueId, dispatch]);
 
     const nextImage = () => {
-        if (!venue || !venue.photos) return;
+        if (!venue || !venue.photos || venue.photos.length === 0) return;
         setCurrentImageIndex((prevIndex) => (prevIndex + 1) % venue.photos.length);
     };
 
     const prevImage = () => {
-        if (!venue || !venue.photos) return;
+        if (!venue || !venue.photos || venue.photos.length === 0) return;
         setCurrentImageIndex((prevIndex) => (prevIndex - 1 + venue.photos.length) % venue.photos.length);
     };
 
@@ -61,11 +61,12 @@ const VenueDetailsPage = () => {
     };
 
     useEffect(() => {
-        if (venue && venue?.photos) startAutoplay();
+        if (venue && venue?.photos && venue.photos.length > 1) {
+            startAutoplay();
+        }
         return () => stopAutoplay();
     }, [venue]);
 
-    // Show loader if either venue or reviews are loading
     if (isVenueLoading || isReviewsLoading) {
         return <SportsLoader />;
     }
@@ -85,15 +86,17 @@ const VenueDetailsPage = () => {
 
     const amenitiesArray = venue?.amenities?.[0]?.split(',').map(amenity => amenity.trim()) || [];
     const operatingHours = `${venue?.operatingHours_openingTime} - ${venue?.operatingHours_closingTime}`;
-    const mapSrc = `https://maps.google.com/maps?q=${venue.lat},${venue.lng}&z=15&output=embed`;
+    
+    // The map is commented out as lat/lng are not in the provided data structure
+    // const mapSrc = `https://maps.google.com/maps?q=${venue.lat},${venue.lng}&z=15&output=embed`;
 
     return (
         <>
             <div className="bg-white min-h-screen">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-24">
                     <div className="mb-8">
                         <button
-                            onClick={() => navigate(-1)}
+                            onClick={() => navigate(-1)} // FIXED: Added onClick handler
                             className="flex items-center gap-2 text-gray-600 hover:text-gray-900 font-semibold"
                         >
                             <ArrowLeft size={20} />
@@ -109,18 +112,26 @@ const VenueDetailsPage = () => {
                                 onMouseLeave={startAutoplay}
                             >
                                 <div className="overflow-hidden rounded-xl shadow-lg">
-                                    <div className="flex transition-transform duration-500 ease-in-out" style={{ transform: `translateX(-${currentImageIndex * 100}%) `}}>
-                                        {venue?.photos?.map((img, index) => (
+                                    <div className="flex transition-transform duration-500 ease-in-out" style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}>
+                                        {venue?.photos?.length > 0 ? venue.photos.map((img, index) => (
                                             <img key={index} src={img} alt={`${venue?.name} facility ${index + 1}`} className="w-full flex-shrink-0 object-cover aspect-video" />
-                                        ))}
+                                        )) : (
+                                            <div className="w-full flex-shrink-0 object-cover aspect-video bg-gray-200 flex items-center justify-center">
+                                                <span className="text-gray-500">No Image Available</span>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
-                                <button onClick={prevImage} className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-white/70 hover:bg-white p-2 rounded-full shadow-md transition">
-                                    <ChevronLeft className="text-gray-800" />
-                                </button>
-                                <button onClick={nextImage} className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-white/70 hover:bg-white p-2 rounded-full shadow-md transition">
-                                    <ChevronRight className="text-gray-800" />
-                                </button>
+                                {venue?.photos?.length > 1 && (
+                                  <>
+                                    <button onClick={prevImage} className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-white/70 hover:bg-white p-2 rounded-full shadow-md transition">
+                                        <ChevronLeft className="text-gray-800" />
+                                    </button>
+                                    <button onClick={nextImage} className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-white/70 hover:bg-white p-2 rounded-full shadow-md transition">
+                                        <ChevronRight className="text-gray-800" />
+                                    </button>
+                                  </>
+                                )}
                             </div>
                         </div>
 
@@ -178,18 +189,7 @@ const VenueDetailsPage = () => {
                             </div>
                         </div>
                         <div className="lg:col-span-1">
-                            {/* The map iframe is commented out as the API data does not provide lat/lng */}
-                            {/* <iframe
-                                title={${venue?.name} Location Map}
-                                src={mapSrc}
-                                width="100%"
-                                height="350"
-                                style={{ border: 0 }}
-                                allowFullScreen=""
-                                loading="lazy"
-                                referrerPolicy="no-referrer-when-downgrade"
-                                className="rounded-xl shadow-md w-full"
-                            ></iframe> */}
+                            {/* Map is disabled as lat/lng are missing from data */}
                         </div>
                     </div>
 

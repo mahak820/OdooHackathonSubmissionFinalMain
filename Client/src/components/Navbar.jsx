@@ -67,6 +67,8 @@ export function NavbarDemo() {
     navigate("/myProfile");
   };
 
+  
+
   return (
     <div className="relative w-full">
       <Navbar>

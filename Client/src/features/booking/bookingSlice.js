@@ -27,7 +27,7 @@ const bookingSlice = createSlice({
             state.isLoading = false;
             state.isError = false;
             state.isSuccess = true;
-            state.booking = action.payload; // Assuming the payload is an array of bookings
+            state.bookings = action.payload; 
         })
         .addCase(fetchmyBooking.rejected, (state, action) => {
             state.isLoading = false;
@@ -37,17 +37,17 @@ const bookingSlice = createSlice({
             
             })
             .addCase(postbooking.pending, (state) => {
-                state.isLoading = true; // API call shuru ho gayi hai
+                state.isLoading = true; 
             })
             .addCase(postbooking.fulfilled, (state, action) => {
                 state.isLoading = false;
                 state.isSuccess = true;
-                state.bookings = [action.payload]; // नई item को array में add karen
+                state.bookings = [action.payload];
             })
             .addCase(postbooking.rejected, (state, action) => {
                 state.isLoading = false;
                 state.isError = true;
-                state.message = action.payload; // Error message ko store karen
+                state.message = action.payload; 
             })
             .addCase(getBookingsOfOwner.pending, (state) => {
                     state.isLoading = true;

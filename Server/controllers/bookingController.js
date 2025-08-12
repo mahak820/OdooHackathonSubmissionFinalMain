@@ -98,10 +98,10 @@ const createBooking = expressAsyncHandler(async (req, res) => {
     isBooked: true
   });
 
-     let updatedBooking = await Venue.findByIdAndUpdate(req.params.venueId, {isBooked : true}, {new : true})
+    //  let updatedBooking = await Venue.findByIdAndUpdate(req.params.venueId, {isBooked : true}, {new : true})
 
 
-  res.status(201).json(updatedBooking );
+  res.status(201).json(booking);
 });
 
 // Get bookings of logged in user

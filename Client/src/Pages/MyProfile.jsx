@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import {
   Edit, Trash2, AlertTriangle, ArrowLeft, Calendar, Mail, User,
-  Target, Zap, Waves, ShieldCheck, Circle, Clock, MapPin, Activity, Star, Award, TrendingUp
+  Target, Zap, Waves, ShieldCheck, Circle, Clock, MapPin, Activity, Star, Award, TrendingUp, CreditCard
 } from 'lucide-react';
 import { fetchmyBooking } from '../features/booking/bookingSlice';
 
@@ -31,13 +31,46 @@ const fallbackProfileData = {
   preferredSport: 'Football'
 };
 
-const initialBookingsData = [
-  { id: 1, venueName: 'Champions Turf', address: 'Bandra West, Mumbai', date: '2025-08-15', time: '6:00 PM - 7:00 PM', sport: 'Football', status: 'upcoming' },
-  { id: 2, venueName: 'SportZone Arena', address: 'Downtown Mumbai', date: '2025-08-22', time: '10:00 AM - 12:00 PM', sport: 'Badminton', status: 'upcoming' },
-  { id: 3, venueName: 'AquaFit Center', address: 'Powai, Mumbai', date: '2024-07-28', time: '8:00 AM - 9:00 AM', sport: 'Swimming', status: 'past' },
-  { id: 4, venueName: 'Champions Turf', address: 'Bandra West, Mumbai', date: '2024-07-15', time: '7:00 PM - 8:00 PM', sport: 'Football', status: 'past' },
-  { id: 5, venueName: 'Racket Club', address: 'Versova, Mumbai', date: '2024-06-20', time: '5:00 PM - 6:00 PM', sport: 'Tennis', status: 'past' },
-];
+// --- Utility Functions ---
+const isUpcomingBooking = (bookingDate) => {
+  const today = new Date();
+  const booking = new Date(bookingDate);
+  return booking >= today;
+};
+
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+};
+
+const formatTime = (startTime, endTime) => {
+  const formatTime12Hour = (time24) => {
+    const [hours, minutes] = time24.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const hour12 = hour % 12 || 12;
+    return `${hour12}:${minutes} ${ampm}`;
+  };
+  
+  return `${formatTime12Hour(startTime)} - ${formatTime12Hour(endTime)}`;
+};
+
+const getPaymentStatusColor = (status) => {
+  switch (status) {
+    case 'paid':
+      return 'text-green-600 bg-green-50';
+    case 'pending':
+      return 'text-yellow-600 bg-yellow-50';
+    case 'failed':
+      return 'text-red-600 bg-red-50';
+    default:
+      return 'text-gray-600 bg-gray-50';
+  }
+};
 
 // --- Sub-Components ---
 
@@ -84,7 +117,8 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm }) => {
 };
 
 const BookingCard = ({ booking, onUpdate, onDelete }) => {
-  const isUpcoming = booking.status === 'upcoming';
+  const isUpcoming = isUpcomingBooking(booking.date);
+  
   return (
     <motion.div 
       layout 
@@ -99,14 +133,19 @@ const BookingCard = ({ booking, onUpdate, onDelete }) => {
         <div className="flex justify-between items-start mb-4">
           <div className="flex-1">
             <div className="flex items-center mb-2">
-              {sportIcons[booking.sport] || sportIcons.Default}
-              <span className="text-sm font-semibold text-[#FF6B35] uppercase tracking-wide">{booking.sport}</span>
+              {sportIcons.Default}
+              <span className="text-sm font-semibold text-[#FF6B35] uppercase tracking-wide">Venue Booking</span>
             </div>
-            <h4 className="text-xl font-bold text-gray-800 mb-2">{booking.venueName}</h4>
-            <p className="text-sm text-gray-600 flex items-center">
-              <MapPin size={14} className="mr-2 text-[#4ECDC4]" />
-              {booking.address}
-            </p>
+            <h4 className="text-xl font-bold text-gray-800 mb-2">{booking.venueId?.name || 'Venue Name'}</h4>
+            <div className="flex items-center gap-4 mb-2">
+              <p className="text-sm text-gray-600 flex items-center">
+                <CreditCard size={14} className="mr-2 text-[#4ECDC4]" />
+                ₹{booking.totalPrice}
+              </p>
+              <span className={`text-xs font-medium px-2 py-1 rounded-full ${getPaymentStatusColor(booking.paymentStatus)}`}>
+                {booking.paymentStatus?.charAt(0).toUpperCase() + booking.paymentStatus?.slice(1)}
+              </span>
+            </div>
           </div>
           <div className={`text-xs font-bold px-3 py-2 rounded-full shadow-sm ${
             isUpcoming 
@@ -121,11 +160,11 @@ const BookingCard = ({ booking, onUpdate, onDelete }) => {
           <div className="space-y-2">
             <div className="flex items-center text-sm text-gray-700 bg-gray-50 px-3 py-1 rounded-lg">
               <Calendar size={14} className="mr-2 text-[#4ECDC4]" />
-              <span className="font-medium">{booking.date}</span>
+              <span className="font-medium">{formatDate(booking.date)}</span>
             </div>
             <div className="flex items-center text-sm text-gray-700 bg-gray-50 px-3 py-1 rounded-lg">
               <Clock size={14} className="mr-2 text-[#FF6B35]" />
-              <span className="font-medium">{booking.time}</span>
+              <span className="font-medium">{formatTime(booking.startTime, booking.endTime)}</span>
             </div>
           </div>
           {isUpcoming && (
@@ -152,9 +191,8 @@ const BookingCard = ({ booking, onUpdate, onDelete }) => {
   );
 };
 
-// --- Corrected Profile Sidebar Component ---
-// This component now accepts user as a prop
-const ProfileSidebar = ({ navigate, user }) => {
+// --- Profile Sidebar Component ---
+const ProfileSidebar = ({ navigate, user, bookingStats }) => {
   // Use user prop, with fallback to mock data for a complete UI
   const displayUser = { ...fallbackProfileData, ...user };
 
@@ -220,15 +258,15 @@ const ProfileSidebar = ({ navigate, user }) => {
         <div className="space-y-3">
           <div className="flex justify-between items-center p-3 bg-gradient-to-r from-[#4ECDC4]/10 to-[#4ECDC4]/5 rounded-xl">
             <span className="text-gray-700 text-sm font-medium">Total Bookings</span>
-            <span className="text-[#4ECDC4] font-bold text-lg">{displayUser.totalBookings}</span>
+            <span className="text-[#4ECDC4] font-bold text-lg">{bookingStats.total}</span>
           </div>
           <div className="flex justify-between items-center p-3 bg-gradient-to-r from-[#FF6B35]/10 to-[#FF6B35]/5 rounded-xl">
             <span className="text-gray-700 text-sm font-medium">Upcoming</span>
-            <span className="text-[#FF6B35] font-bold text-lg">{displayUser.upcomingCount}</span>
+            <span className="text-[#FF6B35] font-bold text-lg">{bookingStats.upcoming}</span>
           </div>
           <div className="flex justify-between items-center p-3 bg-gray-50 rounded-xl">
             <span className="text-gray-700 text-sm font-medium">Completed</span>
-            <span className="text-gray-600 font-bold text-lg">{displayUser.completedCount}</span>
+            <span className="text-gray-600 font-bold text-lg">{bookingStats.past}</span>
           </div>
         </div>
       </motion.div>
@@ -247,14 +285,11 @@ const ProfileSidebar = ({ navigate, user }) => {
         <div className="space-y-3">
           <div className="p-3 bg-gray-50 rounded-xl">
             <p className="text-xs text-gray-500 uppercase tracking-wide">Favorite Venue</p>
-            <p className="text-gray-800 font-semibold">{displayUser.favoriteVenue}</p>
+            <p className="text-gray-800 font-semibold">{bookingStats.favoriteVenue || 'No favorite yet'}</p>
           </div>
           <div className="p-3 bg-gray-50 rounded-xl">
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Preferred Sport</p>
-            <p className="text-gray-800 font-semibold flex items-center">
-              {sportIcons[displayUser.preferredSport] || sportIcons.Default}
-              {displayUser.preferredSport}
-            </p>
+            <p className="text-xs text-gray-500 uppercase tracking-wide">Total Spent</p>
+            <p className="text-gray-800 font-semibold">₹{bookingStats.totalSpent}</p>
           </div>
         </div>
       </motion.div>
@@ -278,23 +313,68 @@ const ProfileSidebar = ({ navigate, user }) => {
 // --- Main Profile Page Component ---
 const MyProfilePage = () => {
   const [activeTab, setActiveTab] = useState('upcoming');
-//  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [bookingToDelete, setBookingToDelete] = useState(null);
   const navigate = useNavigate || (() => {});
- const dispatch = useDispatch()
-  const {user} = useSelector(state => state.auth);
-    const {bookings} = useSelector(state => state.booking);
+  const dispatch = useDispatch();
+  const { user } = useSelector(state => state.auth);
+  const { bookings } = useSelector(state => state.booking);
 
-  console.log(user)
-  const userId = user.id
-  console.log(userId)
+  console.log('User:', user);
+  console.log('Bookings:', bookings);
 
-  useEffect(() =>{
-  dispatch(fetchmyBooking({userId : user.id}))
-  },[])
-  const upcomingBookings = useMemo(() => bookings.filter(b => b.status === 'upcoming'), [bookings]);
-  const pastBookings = useMemo(() => bookings.filter(b => b.status === 'past'), [bookings]);
+  useEffect(() => {
+    if (user?.id) {
+      dispatch(fetchmyBooking({ userId: user.id }));
+    }
+  }, [dispatch, user?.id]);
+
+  // Sort bookings by date and categorize
+  const sortedBookings = useMemo(() => {
+    if (!bookings || !Array.isArray(bookings)) return [];
+    
+    return [...bookings].sort((a, b) => {
+      const dateA = new Date(a.date);
+      const dateB = new Date(b.date);
+      return dateB - dateA; // Most recent first
+    });
+  }, [bookings]);
+
+  const upcomingBookings = useMemo(() => 
+    sortedBookings.filter(booking => isUpcomingBooking(booking.date))
+  , [sortedBookings]);
+
+  const pastBookings = useMemo(() => 
+    sortedBookings.filter(booking => !isUpcomingBooking(booking.date))
+  , [sortedBookings]);
+
+  // Calculate booking statistics
+  const bookingStats = useMemo(() => {
+    const total = sortedBookings.length;
+    const upcoming = upcomingBookings.length;
+    const past = pastBookings.length;
+    const totalSpent = sortedBookings.reduce((sum, booking) => sum + (booking.totalPrice || 0), 0);
+    
+    // Find favorite venue (most booked venue)
+    const venueCount = {};
+    sortedBookings.forEach(booking => {
+      const venueName = booking.venueId?.name;
+      if (venueName) {
+        venueCount[venueName] = (venueCount[venueName] || 0) + 1;
+      }
+    });
+    
+    const favoriteVenue = Object.keys(venueCount).reduce((a, b) => 
+      venueCount[a] > venueCount[b] ? a : b, null);
+
+    return {
+      total,
+      upcoming,
+      past,
+      totalSpent,
+      favoriteVenue
+    };
+  }, [sortedBookings, upcomingBookings, pastBookings]);
 
   const handleDeleteClick = (bookingId) => {
     setBookingToDelete(bookingId);
@@ -302,9 +382,17 @@ const MyProfilePage = () => {
   };
 
   const confirmDelete = () => {
-    setBookings(prev => prev.filter(b => b.id !== bookingToDelete));
+    // Here you would typically dispatch an action to delete the booking
+    // For now, we'll just close the modal
+    console.log('Deleting booking:', bookingToDelete);
     setIsModalOpen(false);
     setBookingToDelete(null);
+  };
+
+  const handleUpdate = (bookingId) => {
+    // Handle booking update logic
+    console.log('Updating booking:', bookingId);
+    alert(`Update booking ${bookingId}`);
   };
 
   return (
@@ -318,8 +406,7 @@ const MyProfilePage = () => {
             {/* Left Sidebar - Profile (1/3 width) */}
             <div className="lg:col-span-1">
               <div className="sticky top-8">
-                {/* user prop is passed here */}
-                <ProfileSidebar navigate={navigate} user={user} />
+                <ProfileSidebar navigate={navigate} user={user} bookingStats={bookingStats} />
               </div>
             </div>
             
@@ -344,7 +431,7 @@ const MyProfilePage = () => {
                     <p className="text-gray-600 mt-2">Manage and track your venue reservations</p>
                   </div>
                   <div className="bg-gray-50 px-4 py-2 rounded-xl">
-                    <span className="text-sm text-gray-600">{bookings.length} total bookings</span>
+                    <span className="text-sm text-gray-600">{sortedBookings.length} total bookings</span>
                   </div>
                 </div>
                 
@@ -395,15 +482,15 @@ const MyProfilePage = () => {
                           <div className="grid gap-6">
                             {upcomingBookings.map((booking, index) => 
                               <motion.div
-                                key={booking.id}
+                                key={booking._id}
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: index * 0.1 }}
                               >
                                 <BookingCard 
                                   booking={booking} 
-                                  onUpdate={() => alert(`Update booking ${booking.id}`)} 
-                                  onDelete={() => handleDeleteClick(booking.id)} 
+                                  onUpdate={() => handleUpdate(booking._id)} 
+                                  onDelete={() => handleDeleteClick(booking._id)} 
                                 />
                               </motion.div>
                             )}
@@ -423,7 +510,7 @@ const MyProfilePage = () => {
                           <div className="grid gap-6">
                             {pastBookings.map((booking, index) => 
                               <motion.div
-                                key={booking.id}
+                                key={booking._id}
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: index * 0.1 }}
@@ -453,7 +540,11 @@ const MyProfilePage = () => {
         </div>
       </div>
       
-      <ConfirmDeleteModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onConfirm={confirmDelete} />
+      <ConfirmDeleteModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        onConfirm={confirmDelete} 
+      />
     </>
   );
 };

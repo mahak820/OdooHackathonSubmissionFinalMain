@@ -4,6 +4,7 @@ import { X } from 'lucide-react';
 
 // Import the stylesheet for the calendar
 import 'react-datepicker/dist/react-datepicker.css';
+import { useNavigate } from 'react-router-dom';
 
 // Helper function to generate time slots
 const generateTimeSlots = (startHour, endHour) => {
@@ -14,11 +15,19 @@ const generateTimeSlots = (startHour, endHour) => {
   return slots;
 };
 
+
+
 // --- MAIN MODAL COMPONENT ---
 export const BookingModal = ({ venue, onClose }) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
+
+  const navigate = useNavigate()
+
+  const handlePayment = () => {
+    navigate("/myProfile")
+}
 
   // Simulate already booked slots for the selected date
   const bookedSlots = useMemo(() => {
@@ -157,10 +166,11 @@ export const BookingModal = ({ venue, onClose }) => {
         {/* Footer */}
         <div className="p-6 border-t bg-gray-50 rounded-b-2xl">
           <button 
+          
             disabled={!startTime || !endTime} 
             className="w-full bg-[#FF6B35] text-white font-bold py-3 rounded-lg shadow-lg hover:bg-opacity-90 transition transform hover:-translate-y-0.5 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:transform-none"
           >
-            Continue to Payment
+            Continue to Booking
           </button>
         </div>
       </div>

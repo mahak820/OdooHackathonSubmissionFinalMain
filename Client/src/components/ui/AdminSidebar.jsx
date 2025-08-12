@@ -1,6 +1,8 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom'; // 1. Import useNavigate
+import { useDispatch } from 'react-redux';
 import { LayoutDashboard, ShieldCheck, Users, Settings, LogOut } from 'lucide-react';
+import { logoutUser } from '../../features/auth/authSlice'; // Adjust path if needed
 
 const SidebarLink = ({ to, icon: Icon, label }) => (
   <div className="relative group">
@@ -24,6 +26,15 @@ const SidebarLink = ({ to, icon: Icon, label }) => (
 );
 
 const AdminSidebar = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate(); // 2. Initialize the navigate function
+
+  const handleLogout = () => {
+    dispatch(logoutUser());
+    // 3. Redirect the user after dispatching the action
+    navigate('/login'); 
+  };
+
   return (
     <div className="bg-white h-screen flex flex-col p-4 sticky top-0 border-r border-gray-200">
       <div className="flex items-center gap-3 mb-10 px-2">
@@ -41,7 +52,7 @@ const AdminSidebar = () => {
 
       <div className="mt-auto">
         <SidebarLink to="/admin/settings" icon={Settings} label="Settings" />
-        <button className="w-full flex items-center gap-4 px-4 py-3 rounded-lg text-gray-500 hover:bg-red-50 hover:text-red-600 transition-colors duration-200 mt-2">
+        <button onClick={handleLogout} className="w-full flex items-center gap-4 px-4 py-3 rounded-lg text-gray-500 hover:bg-red-50 hover:text-red-600 transition-colors duration-200 mt-2">
           <LogOut size={20} />
           <span className="font-semibold hidden lg:block">Logout</span>
         </button>

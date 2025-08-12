@@ -54,16 +54,21 @@ const getVenues = expressAsyncHandler(async (req, res) => {
 // @route GET /api/venues/:id
 // @access Public
 const getVenueById = expressAsyncHandler(async (req, res) => {
-    const venue = await Venue.findById(req.params.venueid);
+    const { venueid } = req.params;
 
-    if (!venue) {
-        res.status(404);
-        throw new Error("Venue not found");
+    // Check if venueid is a valid Mongo ObjectId
+    if (!mongoose.Types.ObjectId.isValid(venueid)) {
+        return res.status(400).json({ message: "Invalid venue ID format" });
     }
 
-    res.json(venue);
-});
+    const venue = await Venue.findById(venueid);
 
+    if (!venue) {
+        return res.status(404).json({ message: "Venue not found" });
+    }
+
+    res.status(200).json(venue);
+});
 const getVenueByUserId = expressAsyncHandler(async (req, res) => {
     const { userId } = req.params;
 
