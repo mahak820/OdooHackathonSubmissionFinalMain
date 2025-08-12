@@ -16,17 +16,17 @@ const getAllBookings = async ( token) => {
 
 
 // add booking 
-const addBooking = async (formData,venueId ,token) => {
- 
-    const config = {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-    };
+const addBooking = async (bookingData, venueId, token) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
 
-    const response = await axios.post(`${api}/booking/${venueId}`,formData ,config);
-    // console.log(response.data)
-    return response.data;
+  // Make the POST request to create the booking
+  const response = await axios.post(`${api}/venueId`, bookingData, config);
+  
+  return response.data;
 };
 
 const getBookingsOfOwner = async (token) => {

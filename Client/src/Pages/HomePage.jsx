@@ -17,6 +17,8 @@ import Features4 from '../components/Features4';
 import FeaturedVenues from '../components/FeaturedVenues';
 import TrendingSports from '../components/TrendingSports';
 import { TestimonialsSection } from '../components/ui/ScrollingTestimonials';
+import CommunityCTA from '../components/CTAsection';
+import CommunityCTAWhite from '../components/CTAsection';
 
 
 // Your other components like Ribbons, BlobCursor, etc. can be imported as needed.
@@ -44,6 +46,7 @@ const HomePage = () => {
       <FeaturedVenues/>
       <TrendingSports/>
       <TestimonialsSection/>
+      <CommunityCTAWhite/>
       
       {/* <Hero4/> */}
       

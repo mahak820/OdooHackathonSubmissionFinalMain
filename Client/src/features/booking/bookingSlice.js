@@ -37,18 +37,21 @@ const bookingSlice = createSlice({
             
             })
             .addCase(postbooking.pending, (state) => {
-                state.isLoading = true; 
-            })
-            .addCase(postbooking.fulfilled, (state, action) => {
-                state.isLoading = false;
-                state.isSuccess = true;
-                state.bookings = [action.payload];
-            })
-            .addCase(postbooking.rejected, (state, action) => {
-                state.isLoading = false;
-                state.isError = true;
-                state.message = action.payload; 
-            })
+            state.isLoading = true; 
+            state.isError = false;
+            state.isSuccess = false;
+        })
+        .addCase(postbooking.fulfilled, (state, action) => {
+            state.isLoading = false;
+            state.isSuccess = true;
+            // FIXED: Push the new booking to the existing array
+            state.bookings.push(action.payload);
+        })
+        .addCase(postbooking.rejected, (state, action) => {
+            state.isLoading = false;
+            state.isError = true;
+            state.message = action.payload; // This is correct
+        })
             .addCase(getBookingsOfOwner.pending, (state) => {
                     state.isLoading = true;
                     state.isError = false;

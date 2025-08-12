@@ -5,7 +5,8 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import {
   Edit, Trash2, AlertTriangle, ArrowLeft, Calendar, Mail, User,
-  Target, Zap, Waves, ShieldCheck, Circle, Clock, MapPin, Activity, Star, Award, TrendingUp, CreditCard
+  Target, Zap, Waves, ShieldCheck, Circle, Clock, MapPin, Activity, Star, Award, TrendingUp, CreditCard,
+  MessageSquare, Send, StarIcon
 } from 'lucide-react';
 import { fetchmyBooking } from '../features/booking/bookingSlice';
 
@@ -72,6 +73,210 @@ const getPaymentStatusColor = (status) => {
   }
 };
 
+// --- Review Related Components ---
+
+const StarRating = ({ rating, onRatingChange, readonly = false, size = 20 }) => {
+  const [hoverRating, setHoverRating] = useState(0);
+
+  const handleClick = (selectedRating) => {
+    if (!readonly && onRatingChange) {
+      onRatingChange(selectedRating);
+    }
+  };
+
+  const handleMouseEnter = (selectedRating) => {
+    if (!readonly) {
+      setHoverRating(selectedRating);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (!readonly) {
+      setHoverRating(0);
+    }
+  };
+
+  return (
+    <div className="flex items-center gap-1">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <button
+          key={star}
+          type="button"
+          className={`${readonly ? 'cursor-default' : 'cursor-pointer hover:scale-110'} transition-transform`}
+          onClick={() => handleClick(star)}
+          onMouseEnter={() => handleMouseEnter(star)}
+          onMouseLeave={handleMouseLeave}
+          disabled={readonly}
+        >
+          <Star
+            size={size}
+            className={`${
+              star <= (hoverRating || rating)
+                ? 'text-[#FF6B35] fill-[#FF6B35]'
+                : 'text-gray-300'
+            } transition-colors`}
+          />
+        </button>
+      ))}
+    </div>
+  );
+};
+
+const ReviewSection = ({ booking, userReview, onSubmitReview }) => {
+  const [isWritingReview, setIsWritingReview] = useState(false);
+  const [rating, setRating] = useState(userReview?.rating || 0);
+  const [reviewText, setReviewText] = useState(userReview?.comment || '');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmitReview = async () => {
+    if (rating === 0) {
+      alert('Please select a rating');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await onSubmitReview({
+        bookingId: booking._id,
+        venueId: booking.venueId?._id,
+        rating,
+        comment: reviewText.trim()
+      });
+      setIsWritingReview(false);
+    } catch (error) {
+      console.error('Error submitting review:', error);
+      alert('Failed to submit review. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setIsWritingReview(false);
+    setRating(userReview?.rating || 0);
+    setReviewText(userReview?.comment || '');
+  };
+
+  if (userReview && !isWritingReview) {
+    // Display existing review
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mt-4 p-4 bg-gradient-to-r from-[#4ECDC4]/5 to-[#FF6B35]/5 rounded-xl border border-gray-100"
+      >
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <MessageSquare size={16} className="text-[#4ECDC4]" />
+            <span className="text-sm font-semibold text-gray-700">Your Review</span>
+          </div>
+          <button
+            onClick={() => setIsWritingReview(true)}
+            className="text-xs text-[#4ECDC4] hover:text-[#FF6B35] font-medium transition-colors"
+          >
+            Edit
+          </button>
+        </div>
+        <div className="flex items-center gap-2 mb-2">
+          <StarRating rating={userReview.rating} readonly size={16} />
+          <span className="text-sm text-gray-600">({userReview.rating}/5)</span>
+        </div>
+        {userReview.comment && (
+          <p className="text-sm text-gray-700 leading-relaxed">{userReview.comment}</p>
+        )}
+      </motion.div>
+    );
+  }
+
+  if (isWritingReview) {
+    // Review form
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mt-4 p-4 bg-white border-2 border-[#4ECDC4]/20 rounded-xl"
+      >
+        <div className="flex items-center gap-2 mb-4">
+          <MessageSquare size={16} className="text-[#4ECDC4]" />
+          <span className="text-sm font-semibold text-gray-700">
+            {userReview ? 'Edit Your Review' : 'Write a Review'}
+          </span>
+        </div>
+        
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Rate your experience
+            </label>
+            <StarRating rating={rating} onRatingChange={setRating} size={24} />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Share your thoughts (optional)
+            </label>
+            <textarea
+              value={reviewText}
+              onChange={(e) => setReviewText(e.target.value)}
+              placeholder="How was your experience at this venue?"
+              className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4ECDC4]/20 focus:border-[#4ECDC4] resize-none text-sm"
+              rows={3}
+              maxLength={500}
+            />
+            <div className="text-xs text-gray-500 mt-1 text-right">
+              {reviewText.length}/500 characters
+            </div>
+          </div>
+          
+          <div className="flex justify-end gap-2">
+            <button
+              onClick={handleCancel}
+              disabled={isSubmitting}
+              className="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSubmitReview}
+              disabled={isSubmitting || rating === 0}
+              className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-[#4ECDC4] to-[#FF6B35] rounded-lg hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              {isSubmitting ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                <>
+                  <Send size={14} />
+                  Submit Review
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
+
+  // Show "Write Review" button
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="mt-4"
+    >
+      <button
+        onClick={() => setIsWritingReview(true)}
+        className="flex items-center gap-2 text-sm font-medium text-[#4ECDC4] hover:text-[#FF6B35] transition-colors group"
+      >
+        <MessageSquare size={16} className="group-hover:scale-110 transition-transform" />
+        Write a Review
+      </button>
+    </motion.div>
+  );
+};
+
 // --- Sub-Components ---
 
 const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm }) => {
@@ -116,7 +321,7 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm }) => {
   );
 };
 
-const BookingCard = ({ booking, onUpdate, onDelete }) => {
+const BookingCard = ({ booking, onUpdate, onDelete, userReview, onSubmitReview }) => {
   const isUpcoming = isUpcomingBooking(booking.date);
   
   return (
@@ -186,6 +391,15 @@ const BookingCard = ({ booking, onUpdate, onDelete }) => {
             </div>
           )}
         </div>
+
+        {/* Review Section - Only for past bookings */}
+        {!isUpcoming && (
+          <ReviewSection
+            booking={booking}
+            userReview={userReview}
+            onSubmitReview={onSubmitReview}
+          />
+        )}
       </div>
     </motion.div>
   );
@@ -297,7 +511,7 @@ const ProfileSidebar = ({ navigate, user, bookingStats }) => {
       {/* Edit Profile Button */}
       <motion.button 
         initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+        animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.4 }}
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
@@ -315,6 +529,7 @@ const MyProfilePage = () => {
   const [activeTab, setActiveTab] = useState('upcoming');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [bookingToDelete, setBookingToDelete] = useState(null);
+  const [reviews, setReviews] = useState({}); // Store reviews by booking ID
   const navigate = useNavigate || (() => {});
   const dispatch = useDispatch();
   const { user } = useSelector(state => state.auth);
@@ -393,6 +608,34 @@ const MyProfilePage = () => {
     // Handle booking update logic
     console.log('Updating booking:', bookingId);
     alert(`Update booking ${bookingId}`);
+  };
+
+  const handleSubmitReview = async (reviewData) => {
+    try {
+      // Here you would typically dispatch an action to submit the review to your backend
+      // For now, we'll store it locally
+      console.log('Submitting review:', reviewData);
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Update local state
+      setReviews(prev => ({
+        ...prev,
+        [reviewData.bookingId]: {
+          rating: reviewData.rating,
+          comment: reviewData.comment,
+          createdAt: new Date().toISOString()
+        }
+      }));
+      
+      // You would typically dispatch an action like:
+      // dispatch(submitReview(reviewData));
+      
+      alert('Review submitted successfully!');
+    } catch (error) {
+      throw new Error('Failed to submit review');
+    }
   };
 
   return (
@@ -515,7 +758,11 @@ const MyProfilePage = () => {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: index * 0.1 }}
                               >
-                                <BookingCard booking={booking} />
+                                <BookingCard 
+                                  booking={booking}
+                                  userReview={reviews[booking._id]}
+                                  onSubmitReview={handleSubmitReview}
+                                />
                               </motion.div>
                             )}
                           </div>

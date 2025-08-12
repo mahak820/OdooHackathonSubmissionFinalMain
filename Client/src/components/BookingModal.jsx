@@ -1,12 +1,15 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import ReactDatePicker from 'react-datepicker';
-import { X } from 'lucide-react';
+import { X, Loader2 } from 'lucide-react'; // Import Loader2 for a loading spinner
+import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux'; // Import hooks
+import { postbooking } from '../features/booking/bookingSlice'; // Import your thunk
+import { toast } from 'react-toastify'; // Or any other notification library you use
 
 // Import the stylesheet for the calendar
 import 'react-datepicker/dist/react-datepicker.css';
-import { useNavigate } from 'react-router-dom';
 
-// Helper function to generate time slots
+// Helper function to generate time slots (no changes needed here)
 const generateTimeSlots = (startHour, endHour) => {
   const slots = [];
   for (let i = startHour; i <= endHour; i++) {
@@ -15,20 +18,49 @@ const generateTimeSlots = (startHour, endHour) => {
   return slots;
 };
 
-
-
 // --- MAIN MODAL COMPONENT ---
 export const BookingModal = ({ venue, onClose }) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
+  const [error, setError] = useState(''); // Local state for API errors
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const handlePayment = () => {
-    navigate("/myProfile")
-}
+  // Get booking state from Redux store to track loading status
+  const { isLoading, isError, isSuccess, message } = useSelector((state) => state.booking);
 
+  // This effect will run when the booking API call finishes
+  useEffect(() => {
+    if (isError) {
+      setError(message); // Set local error state from Redux
+      toast.error(message); // Show error notification
+    }
+
+    if (isSuccess && !isLoading) {
+      toast.success("Booking successful! Redirecting...");
+      onClose(); // Close the modal
+      navigate("/myProfile"); // Navigate to user's bookings page
+    }
+  }, [isError, isSuccess, isLoading, message, navigate, onClose]);
+
+
+  const handleBookingSubmit = () => {
+    setError(''); // Clear previous errors
+    const bookingData = {
+      date: selectedDate.toISOString().split('T')[0], // Format date to YYYY-MM-DD
+      startTime,
+      endTime,
+      totalPrice,
+    };
+    
+    // Dispatch the thunk with formData and venueId
+    dispatch(postbooking({ formData: bookingData, venueId: venue._id }));
+  };
+
+
+  // --- All other functions (bookedSlots, timeSlots, handleStartTimeSelect, availableEndTimes, totalPrice) remain the same ---
   // Simulate already booked slots for the selected date
   const bookedSlots = useMemo(() => {
     const day = selectedDate.getDay();
@@ -50,7 +82,6 @@ export const BookingModal = ({ venue, onClose }) => {
     const startIndex = timeSlots.indexOf(startTime);
     let nextBookedIndex = -1;
 
-    // Find the next booked slot after the selected start time
     for (let i = startIndex + 1; i < timeSlots.length; i++) {
       if (bookedSlots.includes(timeSlots[i])) {
         nextBookedIndex = i;
@@ -70,14 +101,12 @@ export const BookingModal = ({ venue, onClose }) => {
     return duration > 0 ? duration * venue.pricePerHour : 0;
   }, [startTime, endTime, venue.pricePerHour]);
 
+
   return (
-    // CHANGED: This overlay now blurs the background page instead of making it black.
     <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-md bg-black/30">
-      
-      {/* The modal panel itself is now solid white for best readability */}
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl m-4 transform transition-all duration-300">
         
-        {/* Header */}
+        {/* Header (No changes) */}
         <div className="flex items-center justify-between p-6 border-b">
           <h2 className="text-2xl font-bold text-gray-800">Book a Slot at {venue.name}</h2>
           <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100">
@@ -85,7 +114,7 @@ export const BookingModal = ({ venue, onClose }) => {
           </button>
         </div>
 
-        {/* Body */}
+        {/* Body (No changes) */}
         <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8 max-h-[70vh] overflow-y-auto">
           {/* Left: Calendar & Price */}
           <div className="flex flex-col">
@@ -111,6 +140,7 @@ export const BookingModal = ({ venue, onClose }) => {
           
           {/* Right: Time Slots */}
           <div className="space-y-6">
+            {/* Start Time Slot Selection (No Changes) */}
             <div>
               <h3 className="text-lg font-semibold text-gray-700 mb-3">2. Select Start Time</h3>
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
@@ -134,6 +164,7 @@ export const BookingModal = ({ venue, onClose }) => {
                 })}
               </div>
             </div>
+            {/* End Time Slot Selection (No Changes) */}
             <div>
               <h3 className="text-lg font-semibold text-gray-700 mb-3">3. Select End Time</h3>
               {startTime ? (
@@ -165,12 +196,22 @@ export const BookingModal = ({ venue, onClose }) => {
 
         {/* Footer */}
         <div className="p-6 border-t bg-gray-50 rounded-b-2xl">
-          <button 
+          {/* Display error message if it exists */}
+          {error && <p className="text-red-500 text-center mb-4">{error}</p>}
           
-            disabled={!startTime || !endTime} 
-            className="w-full bg-[#FF6B35] text-white font-bold py-3 rounded-lg shadow-lg hover:bg-opacity-90 transition transform hover:-translate-y-0.5 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:transform-none"
+          <button 
+            onClick={handleBookingSubmit} // UPDATED: Call the submit handler
+            disabled={!startTime || !endTime || isLoading} // UPDATED: Disable when loading
+            className="w-full flex justify-center items-center bg-[#FF6B35] text-white font-bold py-3 rounded-lg shadow-lg hover:bg-opacity-90 transition transform hover:-translate-y-0.5 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:transform-none"
           >
-            Continue to Booking
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                Booking...
+              </>
+            ) : (
+              'Continue to Booking'
+            )}
           </button>
         </div>
       </div>
